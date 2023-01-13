@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy import io
 import numpy as np
 
+teste
 # import tensorflow as tf
 import cv2
 from PIL import Image, ImageFilter
