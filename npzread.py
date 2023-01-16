@@ -2,15 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import io
 import numpy as np
+import sys
 
-teste
-# import tensorflow as tf
 import cv2
 from PIL import Image, ImageFilter
 
 # import PIL.Image
 import skimage.transform as st
 import pywt
+
+# Reference
+# [1] Microscopic nematicity: Rubio-Verdú, C., Turkel, S., Song, Y. et al. Nat. Phys. 18, 196–202 (2022). "Moiré nematic phase in twisted double bilayer graphene.
 
 
 def wavelet_trafo(ldos: list) -> np.ndarray:
@@ -53,6 +55,7 @@ dos_nemat = io.loadmat("m_nematic.mat")
 dosothers = io.loadmat("maps.mat")
 en = io.loadmat("v.mat")
 
+dosr = []
 sca = []
 vectorized_images = []
 px = 65
@@ -308,7 +311,6 @@ def dos_processing(data: np.ndarray, px=65) -> np.ndarray:
     """
     dataf = np.zeros((4, px, px))
     for j in range(4):
-        print(data.shape)
         datatemp = np.array(data[j, :, :])
         # 1) Saving the DOS(r) as an image. In this stage we convert the 64x64 to a 244x244 resolution
         # Saving the image to a .png also smooths it locally
@@ -329,6 +331,9 @@ def dos_processing(data: np.ndarray, px=65) -> np.ndarray:
         fig.add_axes(ax)
         ax.imshow(image, aspect="auto")
         plt.savefig(f"temp{j}.png", bbox_inches="tight", pad_inches=0, dpi=355)
+        plt.clf()
+        plt.cla()
+        plt.close()
 
         # 2) Load the image, and add more contrast to ressemble colors of training dataset
         image_path = f"temp{j}.png"
@@ -340,35 +345,145 @@ def dos_processing(data: np.ndarray, px=65) -> np.ndarray:
         # Cropping image to size consistent in training dataset
         # dostemp final shape = 65x65
         dostemp = st.resize(img[0:300, 50:350], (px, px))
-        plt.clf()
-        plt.imshow(dostemp, cmap="inferno")
-        plt.show()
+
         # Saving new map
         dataf[j, :, :] = dostemp
 
     return dataf[:, :, :]
 
 
+def ind_en(array: np.ndarray, val: float) -> int:
+    """
+    TD: Maybe add some try error here
+    Function that returns index of element with certain value in array.
+
+    Parameters
+    ----------
+    array : np.ndarray
+        Vector with energies
+    val : float
+        energy value
+
+    """
+    j = np.where(array == val)
+
+    # Check if first array from np.where is [] or some valid index
+
+    if j[0].size:
+        j = int(j[0])
+    else:
+        # print("")
+        print(
+            "Energy not found in array. Check if val and array are valid values, and be sure that val is in array."
+        )
+        # print(sys.stderr, "Energy not found in array. Check if val and array are valid values, and be sure that val is in array")
+        # print(sys.stderr, "Exception: %s" % str(e))
+        sys.exit(1)
+    return j
+
+
 # data contais RV1, VFB, CFB and RC1
-data = np.array([dos[:, :, 51, 5], dos[:, :, 21, 5], dos[:, :, 11, 5], dos[:, :, 5, 5]])
-print(data.shape)
-for i in range(4):
-    plt.imshow(data[i, :, :], cmap="inferno")
-    plt.show()
 
-data = dos_processing(data)
+index = np.zeros((len(label), 4), int)
 
+# This has to be done explicitly since
+# doping changes the energy label for bands
+# See Fig. 2a) from ref. [1]
 
+# doping -0.58 n_s, displacement field -0.13 V nm^{-1}
+ind_rv1 = ind_en(en, -0.056)
+ind_vfb = ind_en(en, -0.008)
+ind_cfb = ind_en(en, 0.010)
+ind_rc1 = ind_en(en, 0.056)
+index[0, :] = np.array([ind_rv1, ind_vfb, ind_cfb, ind_rc1])
+
+# doping -0.45 n_s, displacement field -0.10 V nm^{-1}
+ind_rv1 = ind_en(en, -0.058)
+ind_vfb = ind_en(en, -0.006)
+ind_cfb = ind_en(en, 0.006)
+ind_rc1 = ind_en(en, 0.052)
+index[1, :] = np.array([ind_rv1, ind_vfb, ind_cfb, ind_rc1])
+
+# doping -0.32 n_s, displacement field -0.07 V nm^{-1}
+ind_rv1 = ind_en(en, -0.060)
+ind_vfb = ind_en(en, -0.006)
+ind_cfb = ind_en(en, 0.004)
+ind_rc1 = ind_en(en, 0.052)
+index[2, :] = np.array([ind_rv1, ind_vfb, ind_cfb, ind_rc1])
+
+# doping 0 n_s, displacement field 0 V nm^{-1}
+ind_rv1 = ind_en(en, -0.058)
+ind_vfb = ind_en(en, -0.008)
+ind_cfb = ind_en(en, 0.002)
+ind_rc1 = ind_en(en, 0.050)
+index[3, :] = np.array([ind_rv1, ind_vfb, ind_cfb, ind_rc1])
+
+# doping 0.34 n_s, displacement field 0.08 V nm^{-1}
+ind_rv1 = ind_en(en, -0.064)
+ind_vfb = ind_en(en, -0.010)
+ind_cfb = ind_en(en, 0.000)
+ind_rc1 = ind_en(en, 0.046)
+index[4, :] = np.array([ind_rv1, ind_vfb, ind_cfb, ind_rc1])
+
+# doping 0.47 n_s, displacement field 0.11 V nm^{-1}
+ind_rv1 = ind_en(en, -0.064)
+ind_vfb = ind_en(en, -0.012)
+ind_cfb = ind_en(en, 0.002)
+ind_rc1 = ind_en(en, 0.044)
+index[5, :] = np.array([ind_rv1, ind_vfb, ind_cfb, ind_rc1])
+
+# doping 0.67 n_s, displacement field 0.16 V nm^{-1}
+ind_rv1 = ind_en(en, -0.068)
+ind_vfb = ind_en(en, -0.012)
+ind_cfb = ind_en(en, -0.004)
+ind_rc1 = ind_en(en, 0.040)
+index[6, :] = np.array([ind_rv1, ind_vfb, ind_cfb, ind_rc1])
+
+dataf = np.zeros((4, px, px))
+# index = index()
+# for j in range(len(label)):
+plot_it_post = False
+for j in range(len(label)):
+    data = np.array(
+        [
+            dos[:, :, index[j, 0], j],
+            dos[:, :, index[j, 1], j],
+            dos[:, :, index[j, 2], j],
+            dos[:, :, index[j, 3], j],
+        ]
+    )
+    dataf = dos_processing(data)
+
+    # plt.figure(figsize=(10, 10))  # specifying the overall grid size
+
+    if plot_it_post:
+        f, ax = plt.subplots(2, 4)
+        f.suptitle(r"$n_{s}=%.2f$" % (label[j],),)
+        ax[0, 0].imshow(data[0, :, :], cmap="inferno")
+        ax[0, 1].imshow(data[1, :, :], cmap="inferno")
+        ax[0, 2].imshow(data[2, :, :], cmap="inferno")
+        ax[0, 3].imshow(data[3, :, :], cmap="inferno")
+        ax[1, 0].imshow(dataf[0, :, :], cmap="inferno")
+        ax[1, 1].imshow(dataf[1, :, :], cmap="inferno")
+        ax[1, 2].imshow(dataf[2, :, :], cmap="inferno")
+        ax[1, 3].imshow(dataf[3, :, :], cmap="inferno")
+        [axi.set_axis_off() for axi in ax.ravel()]
+        plt.show()
+        plt.clf()
+        plt.cla()
+        plt.close()
+    for p in range(len(dataf)):
+        dosr.append(dataf[p, :, :])
+
+print(np.asarray(dosr).shape)
 # Save the experimental dataset
-# np.savez(
-#     npzfile,
-#     DataX=vectorized_images,
-#     DataY=alphas,
-#     DataZ=sca,
-#     DataW=sca_sigma,
-#     dataP=params,
-# )
 
+np.savez(
+    "expdata.npz",
+    DataX=dosr,
+    DataZ=sca,
+    dataP=label,
+)
 
 #
 # new_image = cv2.medianBlur(image_path, figure_size)
