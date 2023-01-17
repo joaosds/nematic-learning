@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 from scipy import io
 import numpy as np
 import sys
-
+from sklearn.preprocessing import normalize
 import cv2
 from PIL import Image, ImageFilter
+import skimage.filters
 
 # import PIL.Image
 import skimage.transform as st
@@ -33,17 +34,17 @@ def wavelet_trafo(ldos: list) -> np.ndarray:
     """
     coef, _ = pywt.cwt(ldos, np.arange(1, 66), "morl")
     cmap = plt.cm.coolwarm.copy()
-    plt.imshow(
-        coef,
-        cmap=cmap,
-        interpolation="none",
-        extent=[1, 66, 1, 66],
-        aspect="auto",
-        # vmax=abs(coef).max(),
-        # vmin=-abs(coef).max(),
-    )
-    plt.colorbar()
-    plt.show()
+    # plt.imshow(
+    #     coef,
+    #     cmap=cmap,
+    #     interpolation="none",
+    #     extent=[1, 66, 1, 66],
+    #     aspect="auto",
+    #     # vmax=abs(coef).max(),
+    #     # vmin=-abs(coef).max(),
+    # )
+    # plt.colorbar()
+    # plt.show()
 
     return coef
 
@@ -174,8 +175,8 @@ if plot_it:
 
 plot_it_full = False
 plot_it_partial = False
+scale_factor = 100
 for channel in range(len(label)):
-    channel = 3
     dosBAAC[:] = (
         dos[55, 28, :, channel]
         + dos[19, 50, :, channel]
@@ -275,15 +276,28 @@ for channel in range(len(label)):
         # wavelet_trafo(dosBAAC[::-1])
         # wavelet_trafo(dosABCA[::-1])
         # wavelet_trafo(dosABAB[::-1])
-        # The scaleograms in the trained dataset go from negative to positive energies.
-        # Here it's the opposite, so we need to change it for consistency.
-        scatemp[:, :, 0] = wavelet_trafo(dosBAAC2[::-1])
-        scatemp[:, :, 1] = wavelet_trafo(dosABCA2[::-1])
-        scatemp[:, :, 2] = wavelet_trafo(dosABAB2[::-1])
+    # The scaleograms in the trained dataset go from negative to positive energies.
+    # Here it's the opposite, so we need to change it for consistency.
+    print(channel)
+    scatemp[:, :, 0] = wavelet_trafo(dosBAAC2[::-1])
+    scatemp[:, :, 1] = wavelet_trafo(dosABCA2[::-1])
+    scatemp[:, :, 2] = wavelet_trafo(dosABAB2[::-1])
+    print(scatemp)
+    scale_factor = 100
+    for i in range(3):
+        scatemp[:, :, i] = scatemp[:, :, i] / np.linalg.norm(scatemp[:, :, i])
+    # for i in range(3):
+    #     scatemp[:, :, i] -= scatemp[:, :, i].mean(axis=0)
+    #     scatemp[:, :, i] /= scatemp[:, :, i].std(axis=0)
 
+    # x -= x.mean(axis=0)
+    # x /= x.std(axis=0)
+    print(scatemp)
     for j in range(3):
+        scatemp[:, :, j] = scale_factor * scatemp[:, :, j]
         sca.append(scatemp[:, :, j])
 
+print(sca)
 print(np.asarray(sca).shape)
 
 
@@ -342,9 +356,17 @@ def dos_processing(data: np.ndarray, px=65) -> np.ndarray:
         # convert from RGB color-space to YCrCb
         ycrcb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2GRAY)
         img = cv2.equalizeHist(ycrcb_img)
+        # Blur image to remove some noies/defect
+
+        sigma = 10
+        img = skimage.filters.gaussian(
+            img, sigma=(sigma, sigma), truncate=3.5, channel_axis=2
+        )
+
         # Cropping image to size consistent in training dataset
         # dostemp final shape = 65x65
         dostemp = st.resize(img[0:300, 50:350], (px, px))
+        # dostemp = st.resize(img[0:350, 0:350], (px, px))
 
         # Saving new map
         dataf[j, :, :] = dostemp
@@ -442,8 +464,15 @@ index[6, :] = np.array([ind_rv1, ind_vfb, ind_cfb, ind_rc1])
 dataf = np.zeros((4, px, px))
 # index = index()
 # for j in range(len(label)):
+scale_factor = 100
 plot_it_post = False
 for j in range(len(label)):
+    # for i in range(3):
+    #     dos[:, :, index[j, i], j] -= dos[:, :, index[j, i], j].mean(axis=0)
+    #     dos[:, :, index[j, i], j] /= dos[:, :, index[j, i], j].std(axis=0)
+    #
+    # dos[:, :, index[j, i], j] = scale_factor*dos[:, :, index[j, i], j]
+
     data = np.array(
         [
             dos[:, :, index[j, 0], j],
@@ -456,9 +485,21 @@ for j in range(len(label)):
 
     # plt.figure(figsize=(10, 10))  # specifying the overall grid size
 
+    for p in range(len(dataf)):
+        dataf[p, :, :] = scale_factor * dataf[p, :, :]
+        # dataf[p, :, :] -= dataf[p, :, :].mean(axis=0)
+        # dataf[p, :, :] /= 20
+
+        dosr.append(dataf[p, :, :])
+
     if plot_it_post:
         f, ax = plt.subplots(2, 4)
-        f.suptitle(r"$n_{s}=%.2f$" % (label[j],),)
+        f.suptitle(
+            r"$n_{s}=%.2f$" % (label[j],),
+        )
+        for i in range(4):
+            # dataf[i, :, :] = dataf[i, :, :].T
+            dataf[i, :, :] = dataf[i, ::-1, ::-1]
         ax[0, 0].imshow(data[0, :, :], cmap="inferno")
         ax[0, 1].imshow(data[1, :, :], cmap="inferno")
         ax[0, 2].imshow(data[2, :, :], cmap="inferno")
@@ -472,19 +513,24 @@ for j in range(len(label)):
         plt.clf()
         plt.cla()
         plt.close()
-    for p in range(len(dataf)):
-        dosr.append(dataf[p, :, :])
 
+print(dosr)
 print(np.asarray(dosr).shape)
 # Save the experimental dataset
 
+# print(sca)
+# print(dosr)
 np.savez(
     "expdata.npz",
     DataX=dosr,
     DataZ=sca,
-    dataP=label,
+    DataP=label,
 )
 
+
+# Try normalizing the data to mean 0 and standard deviation 1
+# x -= x.mean(axis=0)
+# x /= x.std(axis=0)
 #
 # new_image = cv2.medianBlur(image_path, figure_size)
 # plt.figure(figsize=(11, 6))
