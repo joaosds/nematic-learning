@@ -1,0 +1,20 @@
+#!/bin/bash
+#$ -wd /scratch/c7051184/station1/
+#$ -N nematic1
+#$ -o output.dat
+#$ -e output.dat
+#$ -M Joao.Sobral-Da-Silva@uibk.ac.at 
+#$ -m e
+#$ -pe openmp 8
+#$ -l h_vmem=3.0G
+
+echo STARTED on $(date)
+
+# your commands here
+export OMP_NUM_THREADS=$NSLOTS
+python /scratch/c7051184/station1/mpsingle.py
+
+# display resource consumption
+##qstat -j $JOB_ID | awk 'NR==1,/^scheduling info:/'
+
+echo FINISHED on $(date)
