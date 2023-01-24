@@ -15,6 +15,127 @@ import pywt
 # Reference
 # [1] Microscopic nematicity: Rubio-Verdú, C., Turkel, S., Song, Y. et al. Nat. Phys. 18, 196–202 (2022). "Moiré nematic phase in twisted double bilayer graphene.
 
+def norm_and_hist_plots(
+    ds: np.ndarray,
+    means: np.ndarray,
+    stds: np.ndarray,
+    ds_dim: int,
+    norm=True,
+    px=65,
+    plt_hist=True,
+    n_channels=7,
+) -> np.ndarray:
+    """
+    Function to normalize distributions to have  certain means and standard deviation (stds) if norm = 1. If plt_hist=True,
+    the histogram plot of pixel intensities is plotted for each energy channel
+
+    Parameters
+    ----------
+    ds: np.ndarray
+        Dataset of dimensions (n_channels, ds_dim, px, px) containing images that will be normalized.
+    means : np.ndarray
+        List of desired means for each channel
+    stds : np.ndarray
+        List of desired standard deviations for each channel
+    px : integer
+        Pixel size of DOS(r) images
+    plt_hist : boolean
+        Option to plot histograms (True) or not (False).
+    n_channels : int
+        Number of channels in the dataset sd.
+    norm: boolean 
+        Normalize (1) or not the images.
+
+    Returns
+    -------
+    ds : np.ndarray
+        Normalized datase;
+    """
+    if norm:
+        for k in range(n_channels):
+            for i in range(ds_dim):
+                ds[k, i, :, :] = (
+                    means[k]
+                    + (ds[k, i, :, :] - ds[k, i, :, :].flatten().mean())
+                    * stds[k]
+                    / ds[k, i, :, :].flatten().std()
+                )
+
+    if plt_hist:
+        meantemp = np.zeros((n_channels))
+        stdtemp = np.zeros((n_channels))
+        hists = np.zeros((n_channels, px * px))
+        for i in range(ds_dim):
+            _, axes = plt.subplots(2, 4)
+            # gs = GridSpec(2, 2, figure=fig)
+            # ax1 = fig.add_subplot(gs[0, :])
+            for k in range(n_channels):
+                hists[k, :] = ds[k, i, :, :].flatten()
+                meantemp[k] = hists[k, :].mean()
+                stdtemp[k] = hists[k, :].std()
+            print(len(meantemp))
+            # ver como organizar para 3 plots em cima apenas
+            axes[0, 0].set_title(r"BAAC")
+            axes[0, 1].set_title(r"ABCA")
+            axes[0, 2].set_title(r"ABAB")
+            axes[0, 3].axis("off")
+            axes[1, 0].set_title(r"E = -35 meV (RV$_{1}$)")
+            axes[1, 1].set_title(r"E = -15 meV (VFB)")
+            axes[1, 2].set_title(r"E = 1 meV (CFB)")
+            axes[1, 3].set_title(r"E = 23 meV (RC$_{1}$)")
+            axes[0, 0].hist(hists[0, :], bins=50, facecolor="purple")
+            axes[0, 1].hist(hists[1, :], bins=50, facecolor="black")
+            axes[0, 2].hist(hists[2, :], bins=50, facecolor="red")
+            axes[1, 0].hist(hists[3, :], bins=50)
+            axes[1, 1].hist(hists[4, :], bins=50)
+            axes[1, 2].hist(hists[5, :], bins=50)
+            axes[1, 3].hist(hists[6, :], bins=50)
+
+            # textstr = "\n".join((r"$n_{s}=%.2f$" % (meantemp[0],),))
+            textstr = "\n".join(
+                (
+                    r"\textbf{Before Norm}",
+                    "",
+                    "Scaleograms:",
+                    "",
+                    r"$\mu=%.2f, %.2f, %.2f$" % (meantemp[0], meantemp[1], meantemp[2]),
+                    r"$\sigma=%.2f, %.2f, %.2f$" % (stdtemp[0], stdtemp[1], stdtemp[2]),
+                    r"$\mu_{t}=%.2f, \sigma_{s}=%.2f$"
+                    % (meantemp[0:2].mean(), stdtemp[0:2].std()),
+                    "",
+                    "Dos(r):",
+                    "",
+                    r"$\mu=%.2f, %.2f, %.2f, %.2f$"
+                    % (meantemp[3], meantemp[4], meantemp[5], meantemp[6]),
+                    r"$\sigma=%.2f, %.2f, %.2f, %.2f$"
+                    % (stdtemp[3], stdtemp[4], stdtemp[5], stdtemp[6]),
+                    r"$\mu_{t}=%.2f, \sigma_{s}=%.2f$"
+                    % (meantemp[3:6].mean(), stdtemp[3:6].std()),
+                    "",
+                    "Full dataset",
+                    "",
+                    r"$\mu_{ds}=%.2f, \sigma_{ds}=%.2f$"
+                    % (meantemp.mean(), stdtemp.std()),
+                )
+            )
+            # these are matplotlib.patch.Patch properties
+            props = dict(boxstyle="round", facecolor="wheat", alpha=0.5)
+
+            # place a text box in upper left in axes coords
+            axes[0, 3].text(
+                0.05,
+                0.95,
+                textstr,
+                transform=axes[0, 3].transAxes,
+                fontsize=14,
+                verticalalignment="top",
+                bbox=props,
+            )
+            plt.show()
+            plt.cla()
+            plt.clf()
+            plt.close()
+        return ds
 
 def wavelet_trafo(ldos: list) -> np.ndarray:
     """
@@ -282,23 +403,26 @@ for channel in range(len(label)):
     scatemp[:, :, 0] = wavelet_trafo(dosBAAC2[::-1])
     scatemp[:, :, 1] = wavelet_trafo(dosABCA2[::-1])
     scatemp[:, :, 2] = wavelet_trafo(dosABAB2[::-1])
-    print(scatemp)
-    scale_factor = 100
-    for i in range(3):
-        scatemp[:, :, i] = scatemp[:, :, i] / np.linalg.norm(scatemp[:, :, i])
+    # scatemp[:, :, 0] = wavelet_trafo(dosBAAC2[::-1])
+    # scatemp[:, :, 1] = wavelet_trafo(dosABCA2[::-1])
+    # scatemp[:, :, 2] = wavelet_trafo(dosABAB2[::-1])
+    # print(scatemp)
+    # scale_factor = 100
+    # for i in range(3):
+    # scatemp[:, :, i] = scatemp[:, :, i] / np.linalg.norm(scatemp[:, :, i])
     # for i in range(3):
     #     scatemp[:, :, i] -= scatemp[:, :, i].mean(axis=0)
     #     scatemp[:, :, i] /= scatemp[:, :, i].std(axis=0)
 
     # x -= x.mean(axis=0)
     # x /= x.std(axis=0)
-    print(scatemp)
+    # print(scatemp)
     for j in range(3):
-        scatemp[:, :, j] = scale_factor * scatemp[:, :, j]
+        scatemp[:, :, j] = scatemp[:, :, j] / np.max(scatemp[:, :, j])
         sca.append(scatemp[:, :, j])
 
-print(sca)
-print(np.asarray(sca).shape)
+# print(sca)
+# print(np.asarray(sca).shape)
 
 
 # 2ND PART - DOS(R)
@@ -355,13 +479,14 @@ def dos_processing(data: np.ndarray, px=65) -> np.ndarray:
         rgb_img = cv2.imread(image_path)
         # convert from RGB color-space to YCrCb
         ycrcb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2GRAY)
-        img = cv2.equalizeHist(ycrcb_img)
+        # img = cv2.equalizeHist(ycrcb_img)
+        img = ycrcb_img
         # Blur image to remove some noies/defect
 
-        sigma = 10
-        img = skimage.filters.gaussian(
-            img, sigma=(sigma, sigma), truncate=3.5, channel_axis=2
-        )
+        # sigma = 10
+        # img = skimage.filters.gaussian(
+        #     img, sigma=(sigma, sigma), truncate=3.5, channel_axis=2
+        # )
 
         # Cropping image to size consistent in training dataset
         # dostemp final shape = 65x65
@@ -465,11 +590,11 @@ dataf = np.zeros((4, px, px))
 # index = index()
 # for j in range(len(label)):
 scale_factor = 100
-plot_it_post = False
+plot_it_post = True
 for j in range(len(label)):
     # for i in range(3):
-    #     dos[:, :, index[j, i], j] -= dos[:, :, index[j, i], j].mean(axis=0)
-    #     dos[:, :, index[j, i], j] /= dos[:, :, index[j, i], j].std(axis=0)
+    # dos[:, :, index[j, i], j] -= dos[:, :, index[j, i], j].mean(axis=0)
+    # dos[:, :, index[j, i], j] /= dos[:, :, index[j, i], j].std(axis=0)
     #
     # dos[:, :, index[j, i], j] = scale_factor*dos[:, :, index[j, i], j]
 
@@ -483,14 +608,17 @@ for j in range(len(label)):
     )
     dataf = dos_processing(data)
 
-    # plt.figure(figsize=(10, 10))  # specifying the overall grid size
 
     for p in range(len(dataf)):
-        dataf[p, :, :] = scale_factor * dataf[p, :, :]
-        # dataf[p, :, :] -= dataf[p, :, :].mean(axis=0)
-        # dataf[p, :, :] /= 20
+        dataf[p, :, :] = (
+            0
+            + (dataf[p, :, :] - dataf[p, :, :].flatten().mean())
+            * 1
+            / dataf[p, :, :].flatten().std()
+        )
 
-        dosr.append(dataf[p, :, :])
+
+        dosr.append(dataf[p, ::-1, ::-1])
 
     if plot_it_post:
         f, ax = plt.subplots(2, 4)
@@ -514,8 +642,8 @@ for j in range(len(label)):
         plt.cla()
         plt.close()
 
-print(dosr)
-print(np.asarray(dosr).shape)
+# print(dosr)
+# print(np.asarray(dosr).shape)
 # Save the experimental dataset
 
 # print(sca)
@@ -526,7 +654,6 @@ np.savez(
     DataZ=sca,
     DataP=label,
 )
-
 
 # Try normalizing the data to mean 0 and standard deviation 1
 # x -= x.mean(axis=0)
