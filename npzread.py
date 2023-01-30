@@ -15,10 +15,15 @@ import pywt
 # Reference
 # [1] Microscopic nematicity: Rubio-Verdú, C., Turkel, S., Song, Y. et al. Nat. Phys. 18, 196–202 (2022). "Moiré nematic phase in twisted double bilayer graphene.
 
+# For scaleograms
+plot_it_full = False
+plot_it_partial = False
+
+# For dosr
+plot_it_post = False
+
 def norm_and_hist_plots(
     ds: np.ndarray,
-    means: np.ndarray,
-    stds: np.ndarray,
     ds_dim: int,
     norm=True,
     px=65,
@@ -26,31 +31,34 @@ def norm_and_hist_plots(
     n_channels=7,
 ) -> np.ndarray:
     """
-    Function to normalize distributions to have  certain means and standard deviation (stds) if norm = 1. If plt_hist=True,
+    function to normalize distributions to be centered at 0 (mean) with a standard deviation of 1 if norm = 1. if plt_hist=true,
     the histogram plot of pixel intensities is plotted for each energy channel
 
-    Parameters
+    parameters
     ----------
     ds: np.ndarray
-        Dataset of dimensions (n_channels, ds_dim, px, px) containing images that will be normalized.
+        dataset of dimensions (n_channels, ds_dim, px, px) containing images that will be normalized.
     means : np.ndarray
-        List of desired means for each channel
+        list of desired means for each channel.
     stds : np.ndarray
-        List of desired standard deviations for each channel
+        list of desired standard deviations for each channel.
     px : integer
-        Pixel size of DOS(r) images
-    plt_hist : boolean
-        Option to plot histograms (True) or not (False).
+        pixel size of dos(r) images plt_hist : boolean
+        option to plot histograms (true) or not (false).
     n_channels : int
-        Number of channels in the dataset sd.
-    norm: boolean 
-        Normalize (1) or not the images.
+        number of channels in the dataset sd.
+    norm: boolean
+        normalize (1) or not the images.
 
-    Returns
+    returns
     -------
     ds : np.ndarray
-        Normalized datase;
+        normalized dataset
     """
+
+    means = np.tile(0, n_channels)
+    stds = np.tile(1, n_channels)
+
     if norm:
         for k in range(n_channels):
             for i in range(ds_dim):
@@ -67,7 +75,7 @@ def norm_and_hist_plots(
         hists = np.zeros((n_channels, px * px))
         for i in range(ds_dim):
             _, axes = plt.subplots(2, 4)
-            # gs = GridSpec(2, 2, figure=fig)
+            # gs = gridspec(2, 2, figure=fig)
             # ax1 = fig.add_subplot(gs[0, :])
             for k in range(n_channels):
                 hists[k, :] = ds[k, i, :, :].flatten()
@@ -75,14 +83,14 @@ def norm_and_hist_plots(
                 stdtemp[k] = hists[k, :].std()
             print(len(meantemp))
             # ver como organizar para 3 plots em cima apenas
-            axes[0, 0].set_title(r"BAAC")
-            axes[0, 1].set_title(r"ABCA")
-            axes[0, 2].set_title(r"ABAB")
+            axes[0, 0].set_title(r"baac")
+            axes[0, 1].set_title(r"abca")
+            axes[0, 2].set_title(r"abab")
             axes[0, 3].axis("off")
-            axes[1, 0].set_title(r"E = -35 meV (RV$_{1}$)")
-            axes[1, 1].set_title(r"E = -15 meV (VFB)")
-            axes[1, 2].set_title(r"E = 1 meV (CFB)")
-            axes[1, 3].set_title(r"E = 23 meV (RC$_{1}$)")
+            axes[1, 0].set_title(r"e = -35 mev (rv$_{1}$)")
+            axes[1, 1].set_title(r"e = -15 mev (vfb)")
+            axes[1, 2].set_title(r"e = 1 mev (cfb)")
+            axes[1, 3].set_title(r"e = 23 mev (rc$_{1}$)")
             axes[0, 0].hist(hists[0, :], bins=50, facecolor="purple")
             axes[0, 1].hist(hists[1, :], bins=50, facecolor="black")
             axes[0, 2].hist(hists[2, :], bins=50, facecolor="red")
@@ -94,16 +102,16 @@ def norm_and_hist_plots(
             # textstr = "\n".join((r"$n_{s}=%.2f$" % (meantemp[0],),))
             textstr = "\n".join(
                 (
-                    r"\textbf{Before Norm}",
+                    r"\textbf{before norm}",
                     "",
-                    "Scaleograms:",
+                    "scaleograms:",
                     "",
                     r"$\mu=%.2f, %.2f, %.2f$" % (meantemp[0], meantemp[1], meantemp[2]),
                     r"$\sigma=%.2f, %.2f, %.2f$" % (stdtemp[0], stdtemp[1], stdtemp[2]),
                     r"$\mu_{t}=%.2f, \sigma_{s}=%.2f$"
                     % (meantemp[0:2].mean(), stdtemp[0:2].std()),
                     "",
-                    "Dos(r):",
+                    "dos(r):",
                     "",
                     r"$\mu=%.2f, %.2f, %.2f, %.2f$"
                     % (meantemp[3], meantemp[4], meantemp[5], meantemp[6]),
@@ -112,13 +120,13 @@ def norm_and_hist_plots(
                     r"$\mu_{t}=%.2f, \sigma_{s}=%.2f$"
                     % (meantemp[3:6].mean(), stdtemp[3:6].std()),
                     "",
-                    "Full dataset",
+                    "full dataset",
                     "",
                     r"$\mu_{ds}=%.2f, \sigma_{ds}=%.2f$"
                     % (meantemp.mean(), stdtemp.std()),
                 )
             )
-            # these are matplotlib.patch.Patch properties
+            # these are matplotlib.patch.patch properties
             props = dict(boxstyle="round", facecolor="wheat", alpha=0.5)
 
             # place a text box in upper left in axes coords
@@ -126,7 +134,7 @@ def norm_and_hist_plots(
                 0.05,
                 0.95,
                 textstr,
-                transform=axes[0, 3].transAxes,
+                transform=axes[0, 3].transaxes,
                 fontsize=14,
                 verticalalignment="top",
                 bbox=props,
@@ -135,7 +143,8 @@ def norm_and_hist_plots(
             plt.cla()
             plt.clf()
             plt.close()
-        return ds
+    return ds
+
 
 def wavelet_trafo(ldos: list) -> np.ndarray:
     """
@@ -294,8 +303,6 @@ if plot_it:
     plt.axis("off")
     plt.show()
 
-plot_it_full = False
-plot_it_partial = False
 scale_factor = 100
 for channel in range(len(label)):
     dosBAAC[:] = (
@@ -400,12 +407,12 @@ for channel in range(len(label)):
     # The scaleograms in the trained dataset go from negative to positive energies.
     # Here it's the opposite, so we need to change it for consistency.
     print(channel)
+    # scatemp[:, :, 0] = wavelet_trafo(dosBAAC2)
+    # scatemp[:, :, 1] = wavelet_trafo(dosABCA2)
+    # scatemp[:, :, 2] = wavelet_trafo(dosABAB2)
     scatemp[:, :, 0] = wavelet_trafo(dosBAAC2[::-1])
     scatemp[:, :, 1] = wavelet_trafo(dosABCA2[::-1])
     scatemp[:, :, 2] = wavelet_trafo(dosABAB2[::-1])
-    # scatemp[:, :, 0] = wavelet_trafo(dosBAAC2[::-1])
-    # scatemp[:, :, 1] = wavelet_trafo(dosABCA2[::-1])
-    # scatemp[:, :, 2] = wavelet_trafo(dosABAB2[::-1])
     # print(scatemp)
     # scale_factor = 100
     # for i in range(3):
@@ -418,7 +425,7 @@ for channel in range(len(label)):
     # x /= x.std(axis=0)
     # print(scatemp)
     for j in range(3):
-        scatemp[:, :, j] = scatemp[:, :, j] / np.max(scatemp[:, :, j])
+        # scatemp[:, :, j] = scatemp[:, :, j] / np.max(scatemp[:, :, j])
         sca.append(scatemp[:, :, j])
 
 # print(sca)
@@ -479,17 +486,18 @@ def dos_processing(data: np.ndarray, px=65) -> np.ndarray:
         rgb_img = cv2.imread(image_path)
         # convert from RGB color-space to YCrCb
         ycrcb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2GRAY)
-        # img = cv2.equalizeHist(ycrcb_img)
-        img = ycrcb_img
+        img = cv2.equalizeHist(ycrcb_img)
+        # img = ycrcb_img
         # Blur image to remove some noies/defect
 
-        # sigma = 10
-        # img = skimage.filters.gaussian(
-        #     img, sigma=(sigma, sigma), truncate=3.5, channel_axis=2
-        # )
+        sigma = 10
+        img = skimage.filters.gaussian(
+            img, sigma=(sigma, sigma), truncate=3.5, channel_axis=2
+        )
 
         # Cropping image to size consistent in training dataset
         # dostemp final shape = 65x65
+        # dostemp = st.resize(img[20:310, 70:360], (px, px))
         dostemp = st.resize(img[0:300, 50:350], (px, px))
         # dostemp = st.resize(img[0:350, 0:350], (px, px))
 
@@ -589,14 +597,8 @@ index[6, :] = np.array([ind_rv1, ind_vfb, ind_cfb, ind_rc1])
 dataf = np.zeros((4, px, px))
 # index = index()
 # for j in range(len(label)):
-scale_factor = 100
-plot_it_post = True
+
 for j in range(len(label)):
-    # for i in range(3):
-    # dos[:, :, index[j, i], j] -= dos[:, :, index[j, i], j].mean(axis=0)
-    # dos[:, :, index[j, i], j] /= dos[:, :, index[j, i], j].std(axis=0)
-    #
-    # dos[:, :, index[j, i], j] = scale_factor*dos[:, :, index[j, i], j]
 
     data = np.array(
         [
@@ -606,28 +608,22 @@ for j in range(len(label)):
             dos[:, :, index[j, 3], j],
         ]
     )
+
     dataf = dos_processing(data)
+    dataf[0, :, :] = dataf[0, :, ::-1]
+    dataf[1, :, :] = dataf[1, ::-1, ::-1]
+    dataf[2, :, :] = dataf[2, ::-1, ::-1]
+    dataf[3, :, :] = dataf[3, :, ::-1]
 
-
-    for p in range(len(dataf)):
-        dataf[p, :, :] = (
-            0
-            + (dataf[p, :, :] - dataf[p, :, :].flatten().mean())
-            * 1
-            / dataf[p, :, :].flatten().std()
-        )
-
-
-        dosr.append(dataf[p, ::-1, ::-1])
+    for p in range(4):
+        dosr.append(dataf[p, :, :])
 
     if plot_it_post:
         f, ax = plt.subplots(2, 4)
         f.suptitle(
             r"$n_{s}=%.2f$" % (label[j],),
         )
-        for i in range(4):
-            # dataf[i, :, :] = dataf[i, :, :].T
-            dataf[i, :, :] = dataf[i, ::-1, ::-1]
+
         ax[0, 0].imshow(data[0, :, :], cmap="inferno")
         ax[0, 1].imshow(data[1, :, :], cmap="inferno")
         ax[0, 2].imshow(data[2, :, :], cmap="inferno")
@@ -642,43 +638,9 @@ for j in range(len(label)):
         plt.cla()
         plt.close()
 
-# print(dosr)
-# print(np.asarray(dosr).shape)
-# Save the experimental dataset
-
-# print(sca)
-# print(dosr)
 np.savez(
     "expdata.npz",
     DataX=dosr,
     DataZ=sca,
     DataP=label,
 )
-
-# Try normalizing the data to mean 0 and standard deviation 1
-# x -= x.mean(axis=0)
-# x /= x.std(axis=0)
-#
-# new_image = cv2.medianBlur(image_path, figure_size)
-# plt.figure(figsize=(11, 6))
-# plt.subplot(121)
-# plt.imshow(cv2.cvtColor(image_path, cv2.COLOR_HSV2RGB))
-# plt.title("Original")
-# plt.xticks([])
-# plt.yticks([])
-# plt.subplot(122)
-# plt.imshow(cv2.cvtColor(new_image, cv2.COLOR_HSV2RGB))
-# plt.title("Median Filter")
-# plt.xticks([])
-# plt.yticks([])
-# plt.show()
-# plt.imshow(b, cmap="inferno")
-# plt.colorbar()
-# plt.axis("off")
-# plt.title("Energy = " + str(np.round(en[i], 3)) + "eV")
-# plt.show()
-# # dosothers12[:,:, i]= cv2.equalizeHist(dosothers12[:,:, i])
-# # plt.savefig(f"/home/jass/Downloads/datasetstrain/same padding/expdata/resultsnemat/dosnemat_en_{a}.pdf")
-# # plt.savefig(f"/home/jass/Downloads/datasetstrain/same padding/expdata/results/dos_en_{en[i]}.pdf")
-# # plt.savefig(f"/home/jass/Downloads/datasetstrain/same padding/expdata/resultsother/12/dos_en_{en[i]}.pdf")
-# plt.clf()
