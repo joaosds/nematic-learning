@@ -22,6 +22,7 @@ from numpy.linalg import eigh
 from numpy.linalg import norm
 import matplotlib.pyplot as plt
 import matplotlib.cm as cmap
+import math
 
 # from numba import jit
 
@@ -66,6 +67,8 @@ def ind_en(array: np.ndarray, val: float) -> int:
         # print(sys.stderr, "Exception: %s" % str(e))
         sys.exit(1)
     return j
+
+
 #  2x2 Identity matrix
 I = np.identity(2)
 
@@ -215,6 +218,7 @@ class Model:
         # Empirical parameters
         self.theta = theta  # twist angle
         self.phi = phi  # strain angle
+        print(phi, "phi")
         self.epsilon = epsilon  # strain percent
         self.D = D  # displacement field
 
@@ -552,9 +556,11 @@ class Model:
             evecs_m = []
             evecs_p = []
 
+        print(len(kpath))
         # Optimize this section
         j = 0
         for kpt in kpath:  # for each kpt along the path
+            print(kpt, j)
             ham_m = self.gen_ham(
                 kpt[0], kpt[1], -1
             )  # generate and solve a hamiltonian for each valley
@@ -959,6 +965,7 @@ class Model:
         # sz = size of image in nm
         # l1/l2 = layer weights for outer and inner layers respectively
 
+        print("Calculating the dos")
         # helper function to create 2D image from Fourier components
         def im(energy, px, eiGr, rho_G, G):
             gap = np.ones(len(G))
@@ -1111,9 +1118,9 @@ class Model:
         # plt.plot(energies[:], m[26, 22, :], color="blue")
         #
         # fig, ax = plt.subplots()
-        # a1 = np.max(m[25, 38, :])
-        # a2 = np.max(m[36, 35, :])
-        # a3 = np.max(m[20, 26, :])
+        a1 = np.max(m[25, 38, :])
+        a2 = np.max(m[36, 35, :])
+        a3 = np.max(m[20, 26, :])
         # # ax.tick_params(axis="x", which="minor", bottom=False)
         # # ax.tick_params(axis="y", which="minor", bottom=False)
         # plt.plot(energies[:], m[25, 38, :] / a1 + 1, "--bo", c="purple", label="BAAC")
@@ -1134,44 +1141,50 @@ class Model:
         # (j1,) = np.where(energies == -0.017)
         for i in range(3):
             m2_sigma[i, :] = np.abs(np.random.normal(m2[i, :], 0.31))
-            sca[:, :, i] = wavelet_trafo(m2[i, :])
+            # sca[:, :, i] = wavelet_trafo(m2[i, :])
             sca_sigma[:, :, i] = wavelet_trafo(m2_sigma[i, :])
-        # plt.plot(energies[:], m2_sigma[0, :] / a1 + 1, c="black", label="BAAC")
-        # plt.plot(energies[:], m2_sigma[1, :] / a2, c="black", label="ABCA")
+        # plt.clf()
+        # plt.plot(energies[:], m2_sigma[0, :] / a1 + 1, c="purple", label="BAAC")
+        # plt.plot(energies[:], m2_sigma[1, :] / a2, c="red", label="ABCA")
         # plt.plot(energies[:], m2_sigma[2, :] / a3 + 2, color="black", label="ABAB")
+        # plt.savefig("scaleogram.pdf")
+        # plt.show()
         # return list of layer projected DOS and full DOS
-        print(m[:, :, 27])
-        print("teste")
-        print(sca[:, :, i])
-        plot_it_post = True
-        if plot_it_post:
-            plt.show()
-            plt.clf()
-            plt.cla()
-            plt.close()
-            f, ax = plt.subplots(2, 4)
-            # f.suptitle(
-            #     r"$n_{s}=%.2f$" % (energies[27]),
-            # )
-            # j = np.where(energies == -35/1000)
-            # print(j)
-            print(energies)
-            print(-36/1000)
-            ind_rv1 = ind_en(energies, -35/1000)
-            ind_vfb = ind_en(energies, -15/1000)
-            ind_cfb = ind_en(energies, 1/1000)
-            ind_rc1 = ind_en(energies, 23/1000)
-            ax[0, 0].imshow(m[:, :, ind_rv1], cmap="inferno")
-            ax[0, 1].imshow(m[:, :, ind_vfb], cmap="inferno")
-            ax[0, 2].imshow(m[:, :, ind_cfb], cmap="inferno")
-            ax[0, 3].imshow(m[:, :, ind_rc1], cmap="inferno")
-            print(energies[27], energies[28], energies[34], energies[35])
-            [axi.set_axis_off() for axi in ax.ravel()]
-            plt.show()
-            plt.clf()
-            plt.cla()
-            plt.close()
-        m3 = np.array([m[:, :, ind_rv1], m[:, :, ind_vfb], m[:, :, ind_cfb], m[:, :, ind_rc1]])
+        # print(m[:, :, 27])
+        # print("teste")
+        # print(sca[:, :, i])
+        # plot_it_post = True
+        # if plot_it_post:
+        #     plt.clf()
+        #     plt.cla()
+        #     plt.close()
+        #     f, ax = plt.subplots(2, 4)
+        #     # f.suptitle(
+        #     #     r"$n_{s}=%.2f$" % (energies[27]),
+        #     # )
+        #     # j = np.where(energies == -35/1000)
+        #     # print(j)
+        #     print(energies)
+        #     print(-36 / 1000)
+        ind_rv1 = ind_en(energies, -35 / 1000)
+        ind_vfb = ind_en(energies, -15 / 1000)
+        ind_cfb = ind_en(energies, 1 / 1000)
+        ind_rc1 = ind_en(energies, 23 / 1000)
+
+        # ax[0, 0].imshow(m[:, :, ind_rv1], cmap="inferno")
+        # ax[0, 1].imshow(m[:, :, ind_vfb], cmap="inferno")
+        # ax[0, 2].imshow(m[:, :, ind_cfb], cmap="inferno")
+        # ax[0, 3].imshow(m[:, :, ind_rc1], cmap="inferno")
+        # print(energies[27], energies[28], energies[34], energies[35])
+        # [axi.set_axis_off() for axi in ax.ravel()]
+        # plt.savefig("dosr.pdf")
+        # plt.show()
+        # plt.clf()
+        # plt.cla()
+        # plt.close()
+        m3 = np.array(
+            [m[:, :, ind_rv1], m[:, :, ind_vfb], m[:, :, ind_cfb], m[:, :, ind_rc1]]
+        )
         return m2, m2_sigma, sca, sca_sigma, m3
 
 
@@ -1208,34 +1221,112 @@ class Model:
 #
 # # -------------------------- Plot of LDOS as in [4] ------------------------#
 
-model = Model(
-    1.05,
-    0,
-    0.00,
-    0.0,
-    PhiMN=0.006,
-    varphiMN=np.pi/3,
-    PhiIAGN=0.00,
-    varphiIAGN=0,
-    alphal=0,
-    vf=1.3,
-    cut=3,
-)  # plt.imshow(m[:, :, 0], cmap="inferno")
-# model.solve_along_path()
-# energies = np.array([-15/1000])
-# m = model.solve_LDOS(
-#     nk=35, l2=0, energies=energies)
-# # print(m.shape)
-# # (j,) = np.where(energies == -0.0150)
-# # print(j)
-# plt.imshow(m[:, :, 0], cmap=plt.get_cmap("inferno"))
-# plt.show()
-# en = np.round(np.linspace(-0.085, 0.077, 65), 3)
+
+# [ 7.6553300e-02  3.9534908e-02  9.7671989e-04  9.3776304e-01
+#    2.5670552e-01]
+#  [ 6.8136692e-02  4.3844976e-02  1.0732410e-03  8.3845431e-01
+#    4.8308575e-01]
+#  [ 6.8586335e-02  3.7783723e-02 -7.6379767e-04  9.1918445e-01
+#    2.7973798e-01]
+#  [ 4.4206679e-02  4.9679093e-02 -1.7440296e-03  8.8293523e-01
+#    3.2084820e-01]
+#  [ 5.8775838e-02  5.1061619e-02  7.6023000e-04  9.2597437e-01
+#    2.9737237e-01]
+#  [ 7.0067830e-02  6.2001735e-02  1.1463556e-03  9.0682387e-01
+#    3.3504730e-01]
+#  [ 8.7358251e-02  4.4089187e-02  1.7776072e-03  9.2771554e-01
+#    2.1012139e-01]]
+# 0.2671966731641076 0.25670552 0.93776304
+# 0.5227073314922565 0.48308575 0.8384543
+# 0.2954270877286693 0.27973798 0.91918445
+# 0.34855175933872384 0.3208482 0.8829352
+# 0.3107415672616575 0.29737237 0.92597437
+# 0.35391665512168974 0.3350473 0.9068239
+# 0.22273537151845432 0.2101214 0.92771554
+# test = [7.6553300e-02, 3.9534908e-02, 9.7671989e-04, 9.3776304e-01, 0.26719]
+# [[0.05353621 0.07006436 0.00304543]
+# [0.05758499 0.07215505 0.0034304 ]
+# [0.05527328 0.06620438 0.00300529]
+# [0.05911673 0.03274161 0.00386812]
+# [0.06932442 0.05319238 0.00170102]
+# [0.08250777 0.03818719 0.00298479]
+# [0.08889113 0.02397201 0.00140114]]
+
+# test1 = [0.2050777, 0.038187109, 0.00398479]
+# test1 = [0.2050777, 0.03818719, 0.00]
+# test1 = [0.08250777, 0.03, 0.00298479]
+# test1 =
+0
+# test1 = [0.04570911, 0.07212853, 0.00217575]
+# test1 = [0.04494592, 0.01800171, 0.00446036, 0.72490996, 0.6542277]
+# test1 = [0.041895, 0.05708408, 0.00199071]
+# test1 = [0.06596489, 0.03711577, 0.00209242]
+# temp = math.[0.03986419 0.06487677 0.00139022]atan2(test1[3], test1[4])
+test1 = [0.03986419, 0.06487677, 0.000139022]
+test2 = [0.07489202, 0.0257545, 0.00012015]
+# [[0.03986419 0.06487677 0.00139022]
+#  [0.02803392 0.07849638 0.00267647]
+#  [0.03380783 0.0787397  0.00230252]
+#  [0.03628218 0.03258274 0.00272935]
+#  [0.04653889 0.0579895  0.00204958]
+#  [0.0615491  0.03660868 0.00178001]
+#  [0.07489202 0.0257545  0.0012015 ]]
+# test = [8.7358251e-02 , 4.4089187e-02,  1.7776072e-03, 0.2227]
+
+# [[0.04570911 0.07212853 0.00217575]
+#  [0.04375508 0.07257263 0.00254939]
+#  [0.05016937 0.06317268 0.00205861]
+#  [0.03882192 0.02707216 0.00279253]
+#  [0.06002353 0.05572589 0.00136453]
+#  [0.07986091 0.02979849 0.00291166]
+#  [0.08062442 0.01627725 0.00175791]]
+
+test = np.array(
+    [
+        [0.04480714, 0.06522613, 0.00229318],
+        [0.03745113, 0.07715753, 0.00293868],
+        [0.04294398, 0.07117684, 0.00211978],
+        [0.03540807, 0.0298943, 0.00295679],
+        [0.05535977, 0.05872925, 0.00138612],
+        [0.07330533, 0.03305015, 0.00277081],
+        [0.07908311, 0.01608702, 0.0015429],
+    ]
+)
+
+
+nsamples = 7
+print(test.shape)
+
+angle = np.pi / 3
+
+f, ax = plt.subplots(nsamples, 4)
+
 en = np.round(np.linspace(-0.07, 0.06, 65), 3)
-# en2 = np.arange(0.06, -0.07, -0.002)
-m1, m2, m3, m4, m5 = model.solve_LDOSen(nk=35, l2=0, energies=en)
-# print(m1.shape)
-# print(m2.shape)
-# print(m3.shape)
-# print(m4.shape)
-# print(m5.shape)
+for i in reversed(range(nsamples)):
+    print(i)
+    print(test[i, :])
+    print(test[i, 0])
+    model = Model(
+        1.05,
+        0,
+        test[i, 2],
+        0.0,
+        PhiMN=test[i, 0],
+        varphiMN=np.pi / 3,
+        PhiIAGN=test[i, 1],
+        varphiIAGN=np.pi / 3,
+        alphal=0,
+        vf=1.3,
+        cut=3,
+    )
+    m1, m2, m3, m4, m5 = model.solve_LDOSen(nk=35, l2=0, energies=en)
+
+    ax[i, 0].imshow(m5[0], cmap="inferno")
+    ax[i, 1].imshow(m5[1], cmap="inferno")
+    ax[i, 2].imshow(m5[2], cmap="inferno")
+    ax[i, 3].imshow(m5[3], cmap="inferno")
+    [axi.set_axis_off() for axi in ax.ravel()]
+
+
+plt.tight_layout()
+plt.savefig("dosr.pdf")
