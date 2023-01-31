@@ -7,6 +7,7 @@ from sklearn.preprocessing import normalize
 import cv2
 from PIL import Image, ImageFilter
 import skimage.filters
+import matplotlib
 
 # import PIL.Image
 import skimage.transform as st
@@ -21,6 +22,7 @@ plot_it_partial = False
 
 # For dosr
 plot_it_post = False
+
 
 def norm_and_hist_plots(
     ds: np.ndarray,
@@ -644,3 +646,36 @@ np.savez(
     DataZ=sca,
     DataP=label,
 )
+
+
+print(np.array(dosr).shape)
+print(np.array(sca).shape)
+# Plotting all the DOS(r) images
+plot_final = True
+if plot_final:
+    dosr = np.array(dosr)
+    print(len(dosr))
+    nsamples = 7
+    matplotlib.rcParams["axes.linewidth"] = 1.4  # width of frames
+    f, ax = plt.subplots(nsamples, 4, constrained_layout=True)
+
+    j = 0
+    # for i in range(len(dosr)-1, 0, -4):
+    for i in range(0, len(dosr), 4):
+        print(i)
+
+        ax[j, 0].imshow(dosr[i, :, :], cmap="inferno")
+        ax[j, 1].imshow(dosr[i + 1, :, :], cmap="inferno")
+        ax[j, 2].imshow(dosr[i + 2, :, :], cmap="inferno")
+        ax[j, 3].imshow(dosr[i + 3, :, :], cmap="inferno")
+        # ax[j, 3].imshow(dosr[i, :, :], cmap="inferno")
+        # ax[j, 2].imshow(dosr[i - 1, :, :], cmap="inferno")
+        # ax[j, 1].imshow(dosr[i - 2, :, :], cmap="inferno")
+        # ax[j, 0].imshow(dosr[i - 3, :, :], cmap="inferno")
+        [axi.get_yaxis().set_ticks([]) for axi in ax.ravel()]
+        [axi.get_xaxis().set_ticks([]) for axi in ax.ravel()]
+        j += 1
+
+    plt.show()
+    plt.tight_layout()
+    plt.savefig("plot_7_dosr.pdf", dpi=300)
