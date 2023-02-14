@@ -1,4 +1,5 @@
 import numpy as np
+
 import matplotlib.pyplot as plt
 from scipy import io
 import numpy as np
@@ -489,13 +490,13 @@ def dos_processing(data: np.ndarray, px=65) -> np.ndarray:
         # convert from RGB color-space to YCrCb
         ycrcb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2GRAY)
         img = cv2.equalizeHist(ycrcb_img)
-        # img = ycrcb_img
+        img = ycrcb_img
         # Blur image to remove some noies/defect
 
-        sigma = 10
-        img = skimage.filters.gaussian(
-            img, sigma=(sigma, sigma), truncate=3.5, channel_axis=2
-        )
+        # sigma = 10
+        # img = skimage.filters.gaussian(
+        #     img, sigma=(sigma, sigma), truncate=3.5, channel_axis=2
+        # )
 
         # Cropping image to size consistent in training dataset
         # dostemp final shape = 65x65
@@ -676,6 +677,6 @@ if plot_final:
         [axi.get_xaxis().set_ticks([]) for axi in ax.ravel()]
         j += 1
 
-    plt.show()
+    # plt.show()
     plt.tight_layout()
     plt.savefig("plot_7_dosr.pdf", dpi=300)
