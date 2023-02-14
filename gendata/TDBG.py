@@ -1,22 +1,9 @@
 # This code implements the Bistritzer-MacDonald continuum model for twisted double bilayer graphene Supports heterostrain and displacement field Can output cuts of the band structure, full DOS, and LDOS images See end of file for example code Simon Turkel References:
-# v1.1 (29/08/22): Moiré and intravalley graphene nematicity added
 
 # [1] Bistritzer-MacDonald model: Bistritzer and MacDonald, PNAS 108 (30) 12233-12237 (2011). "Moire bands in twisted double-layer graphene."
 # [2] TDBG model: Koshino, Phys. Rev. B 99, 235406 (2019). "Band structure and topological properties of twisted bilayer graphenes."
 # [3] Heterostrain in continuum models: Bi, Yuan, and Fu, Phys. Rev. B 100, 035448 (2019). "Designing flat bands by strain."
 # [4] Microscopic nematicity: Rubio-Verdú, C., Turkel, S., Song, Y. et al. Nat. Phys. 18, 196–202 (2022). "Moiré nematic phase in twisted double bilayer graphene."
-
-# To do and notes (joao):
-# 1. Maybe implement something like the lsite index l = x+y
-# 3. Consistently find the half filling condition for the chemical potential by counting the bands;
-# 4. NOTE: Non particle hole symmetric spectra is usually a result of not applying rotation to pauli matrices
-# 5. Find out what's hapenning with the magnitude of Moiré nematicities
-# 6. Implement the intervalley graphene nematicity. H = np.zeros(8*self.Nq, 8*self.Nq) with both
-# values for valley index, and the coupling is entered on off-diagonal elements.
-# 7. Check if size of LDOS pictures is correct.
-# 8. Sample points on the full Moiré BZ for the LDOS calculations.
-# 9. Test eficiency of matrix construction. If too slow, implement numba, dask or jax.
-# 10. Convert units from eV to meV (optional)
 
 # -----------------------------------------------------------------------------------------------
 
@@ -25,18 +12,15 @@ from numpy.linalg import eigh
 from numpy.linalg import norm
 import matplotlib.pyplot as plt
 import matplotlib.cm as cmap
-from numba import jit
 import pywt
 import sys
-# from mmaformatter import get_mma, save_as_mma
-
-# plt.ion()
 
 # -----------------------------------------------------------------------------------------------
 # Helper Functions
 
+
 def ind_en(array: np.ndarray, val: float) -> int:
-    
+
     """
     TD: Maybe add some try error here
     Function that returns index of element with certain value in array.
@@ -59,11 +43,12 @@ def ind_en(array: np.ndarray, val: float) -> int:
         # print("")
         print(
             "Energy not found in array. Check if val and array are valid values, and be sure that val is in array."
-            )
+        )
         # print(sys.stderr, "Energy not found in array. Check if val and array are valid values, and be sure that val is in array")
-                                                                                                        # print(sys.stderr, "Exception: %s" % str(e))
+        # print(sys.stderr, "Exception: %s" % str(e))
         sys.exit(1)
     return j
+
 
 # generic rotation matrix
 def R(x):
@@ -120,6 +105,7 @@ def wavelet_trafo(ldos: list) -> np.ndarray:
     # plt.show()
 
     return coef
+
 
 class Model:
     def __init__(
@@ -266,12 +252,12 @@ class Model:
         b = np.array([b1, b2, b3])
         self.b = b
 
-        #print(f"Strained with e={epsilon} and phi={phi}")
+        # print(f"Strained with e={epsilon} and phi={phi}")
         b1t = self.q[0] / norm(self.q[0])
         b2t = self.q[1] / norm(self.q[1])
         b3t = self.q[2] / norm(self.q[2])
-        #print(b3t, b2t)
-        #print("inverse")
+        # print(b3t, b2t)
+        # print("inverse")
         self.a2m = (
             2
             * np.pi
@@ -295,7 +281,7 @@ class Model:
 
         self.a1m = self.a1m / norm(self.a1m)
         self.a2m = self.a2m / norm(self.a2m)
-        #print(self.a1m, self.a2m)
+        # print(self.a1m, self.a2m)
         # generate the Q lattice
         # i, j - m1,m2 - k
         # l - layer index
@@ -397,13 +383,14 @@ class Model:
 
             # Moiré Nematicity
             # See equation (5-7) of ref. [4]
-            #f1 = np.cos(kmoire[0])
-            #f2 = np.cos(kmoire[1] * np.sqrt(3) * 0.5) * np.cos(kmoire[0] * 0.5)
-            #f3 = np.sin(kmoire[0] * 0.5) * np.sin(kmoire[1] * np.sqrt(3) * 0.5)
-            #fk = np.array([f1 - f2, -f3 * np.sqrt(3)]) * 8.0 / 3.0
-            #self.MN = np.dot(self.nemaMN, fk)
+            # f1 = np.cos(kmoire[0])
+            # f2 = np.cos(kmoire[1] * np.sqrt(3) * 0.5) * np.cos(kmoire[0] * 0.5)
+            # f3 = np.sin(kmoire[0] * 0.5) * np.sin(kmoire[1] * np.sqrt(3) * 0.5)
+            # fk = np.array([f1 - f2, -f3 * np.sqrt(3)]) * 8.0 / 3.0
+            # self.MN = np.dot(self.nemaMN, fk)
 
-            f1 = -( np.cos(np.dot(self.a1m, kmoire))
+            f1 = -(
+                np.cos(np.dot(self.a1m, kmoire))
                 + np.cos(np.dot(self.a2m, kmoire))
                 - 2 * np.cos(np.dot((self.a1m - self.a2m), kmoire))
             )
@@ -695,6 +682,7 @@ class Model:
             m[:, :, i] = wavelet_trafo(PDOS[i])
             m_sigma[:, :, i] = wavelet_trafo(PDOS_sigma[i])
         return m, m_sigma
+
     # A function to solve for the local density of states
     # returns an array of 2D LDOS images at the specified energies
     # @jit(nopython=True)
@@ -756,8 +744,8 @@ class Model:
             np.array(
                 [
                     # offset for better visualization of Moiré Unit cell
-                    (-(40-sz) / 2) * xhat
-                    + (-(25-sz) / 2) * yhat
+                    (-(40 - sz) / 2) * xhat
+                    + (-(25 - sz) / 2) * yhat
                     + (-sz / 2 + i * sz / px) * xhat
                     + (-sz / 2 + j * sz / px) * yhat
                     for i in range(px)
@@ -1011,9 +999,9 @@ class Model:
         # plt.plot(energies[:], m[26, 22, :], color="blue")
         #
         # fig, ax = plt.subplots()
-        #a1 = np.max(m[25, 38, :])
-        #a2 = np.max(m[36, 35, :])
-        #a3 = np.max(m[20, 26, :])
+        # a1 = np.max(m[25, 38, :])
+        # a2 = np.max(m[36, 35, :])
+        # a3 = np.max(m[20, 26, :])
         # ax.tick_params(axis="x", which="minor", bottom=False)
         # ax.tick_params(axis="y", which="minor", bottom=False)
         # plt.plot(energies[:], m[25, 38, :] / a1 + 1, c="green", label="BAAC")
@@ -1037,87 +1025,14 @@ class Model:
         # plt.plot(energies[:], m2_sigma[1, :] / a2, c="black", label="ABCA")
         # plt.plot(energies[:], m2_sigma[2, :] / a3 + 2, color="black", label="ABAB")
         # return list of layer projected DOS and full DOS
-        ind_rv1 = ind_en(energies, -35/1000)
-        ind_vfb = ind_en(energies, -15/1000)
-        ind_cfb = ind_en(energies, 1/1000)
-        ind_rc1 = ind_en(energies, 23/1000)
-        #print(ind_rv1,ind_vfb,ind_cfb,ind_rc1)
-        m3 = np.array([m[:, :, ind_rv1], m[:, :, ind_vfb], m[:, :, ind_cfb], m[:, :, ind_rc1]])
+        ind_rv1 = ind_en(energies, -35 / 1000)
+        ind_vfb = ind_en(energies, -15 / 1000)
+        ind_cfb = ind_en(energies, 1 / 1000)
+        ind_rc1 = ind_en(energies, 23 / 1000)
+        # print(ind_rv1,ind_vfb,ind_cfb,ind_rc1)
+        m3 = np.array(
+            [m[:, :, ind_rv1], m[:, :, ind_vfb], m[:, :, ind_cfb], m[:, :, ind_rc1]]
+        )
         return m2, m2_sigma, sca, sca_sigma, m3
-# -----------------------------------------------------------------------------------------------
-# """
-#
-# #Example code showing basic functionality
-# #run after running the above to define the model class
-#
-# #Define the model object
-# #twist angle = 1.05 degrees
-# #strain angle = 25 degrees relative to graphene lattice
-# #strain magnitude = 0.2%
-# #displacement field = 0.01 V between adjacent layers
-# #fermi velocity renormalized to vf -> 1.3*vf
-#
-# model = Model(1.05, 25, 0.002, 0.01, vf=1.3)
-#
-# #Generate and plot the bands along a path in k space from K -> Gamma -> M -> K'
-# #returns the eigenvalues for each valley (bands1, bands2) and the k path
-# bands1, bands2, kpath = model.solve_along_path()
-#
-# #Generate and plot density of states projected onto each layer
-# #returns a 5 element list where the first four elements are the partial densities of states
-# #projected onto layers 1-4 and the fifth element is the full DOS
-# PDOS = model.solve_PDOS()
-#
-# #Generate LDOS images
-# #project the LDOS onto layer 1 only (l2=0)
-# #returns a matrix of dimension (num_pixels X num_pixels X num_energy_pts)
-# m = model.solve_LDOS(l2=0)
-# """
-#
-# # -------------------------- Plot of LDOS as in [4] --------------------------#
-# model = Model(
-#     1.05,
-#     0,
-#     0,
-#     0.0,
-#     PhiMN=0.005,
-#     varphiMN=1.48365644,
-#     PhiIAGN=0.00,
-#     varphiIAGN=0,
-#     alphal=0,
-#     vf=1.3,
-#     cut=3,
-# )
-# # # # PDOS = model.solve_PDOS(nk=32)
-# # # bands1, bands2, kpath = model.solve_along_path()
-# # # plt.show()
-# energies = np.array(
-#     [
-#         # -85,
-#         # -66,
-#         # -37,
-#         -15
-#         # 1,
-#         # 24,
-#         # 66,
-#         # 77,
-#     ]
-# )
-# energies = energies / 1000
-# # energies = -15 / 1000
-# m = model.solve_LDOS(nk=35, l2=0, energies=energies)
-# # plt.show()
-# # #
-# # # # # # Plot of LDOS
-# # # fig, ax = plt.subplots(1, len(energies), constrained_layout=True)
-# # # # [axi.axes.get_yaxis().set_ticks([]) for axi in ax.ravel()]
-# # # # [axi.axes.get_xaxis().set_ticks([]) for axi in ax.ravel()]
-# # # j = 0
-# # # # for axi in ax.ravel():
-# plt.imshow(m[:, :,  0])
-# plt.show()
-# # j += 1
-# plt.tight_layout()
-# # plt.savefig(f"results/IAGN_{20/1000}evphi={0}_alphal_{4*np.pi/3}.pdf")
-# # plt.savefig("results/test.pdf")
-# plt.show
+
+

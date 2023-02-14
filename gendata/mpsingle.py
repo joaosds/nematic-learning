@@ -8,11 +8,12 @@ import re
 
 # get the name of the folder
 cwd2 = os.path.split(os.getcwd())[1]
-print(str(re.findall('\d+', cwd2)))
+print(str(re.findall("\d+", cwd2)))
 cwd2int = int("".join(filter(str.isdigit, cwd2)))
 npzfile = f"temptest{cwd2int}.npz"
 print(npzfile)
-#f ----------------------------ML file generation---------------------------#
+
+# ----------------------------ML file generation---------------------------#
 vectorized_images = []
 LDOS = []
 LDOS_sigma = []
@@ -21,7 +22,7 @@ sca_sigma = []
 alphas = []
 theta = np.pi / 3
 
-#en = np.round(np.linspace(-0.085, 0.077, 65), 3)
+# en = np.round(np.linspace(-0.085, 0.077, 65), 3)
 en = np.round(np.linspace(-0.07, 0.06, 65), 3)
 print(en)
 N = 1000
@@ -29,7 +30,7 @@ for i in range(N):
     PhiMNt = np.random.default_rng().uniform(low=0.001, high=0.1, size=1)[0]
     PhiIAGNt = np.random.default_rng().uniform(low=0.001, high=0.1, size=1)[0]
     epsilont = np.random.default_rng().uniform(low=0.000, high=0.008, size=1)[0]
-    phit = np.random.default_rng().uniform(low=0, high=np.pi/3, size=1)[0]
+    phit = np.random.default_rng().uniform(low=0, high=np.pi / 3, size=1)[0]
     alpha = [PhiMNt, PhiIAGNt, epsilont, phit]
     model = TDBG.Model(
         1.05,
@@ -51,11 +52,11 @@ for i in range(N):
         vectorized_images.append(m5[j, :, :])
     for j in range(3):
         # LDOS(w) for BAAC, ABCA, ABAB
-        #LDOS.append(m1[j,:])
-        #LDOS_sigma.append(m2[j,:])
+        # LDOS.append(m1[j,:])
+        # LDOS_sigma.append(m2[j,:])
         # LDOS(w) in scaleogram for BAAC, ABCA, ABAB
-        sca.append(m3[:,:,j])
-        sca_sigma.append(m4[:,:,j])
+        sca.append(m3[:, :, j])
+        sca_sigma.append(m4[:, :, j])
     alphas.append(alpha)
 
 # save final npzfile for ml
