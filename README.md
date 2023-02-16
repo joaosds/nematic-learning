@@ -8,7 +8,7 @@ This repository contains all the scripts used to generate and analyze the data i
 
 Zenodo Link:
 
-Authors: Simon Eli Turkel, Abhay Pasuphaty (Columbia University), Stefan Obernauer, João Augusto Sobral and Mathias S. Scheurer (University of Innsbruck).
+Authors: Simon Eli Turkel (@sturk111), Abhay Pasuphaty (Columbia University), Stefan Obernauer (@stefob), João Augusto Sobral and Mathias S. Scheurer (University of Innsbruck).
 
  Install the dependencies: `pip install -r requirements.txt`, and `Python 3.9.10`.
 #### Continuum model for tDBG
