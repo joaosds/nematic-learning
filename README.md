@@ -12,7 +12,7 @@ Authors: Simon Eli Turkel ([@sturk111](https://www.github.com/sturk111)), Abhay 
 
  Install the dependencies: `pip install -r requirements.txt`, and `Python 3.9.10`.
 #### Continuum model for tDBG
-1. TDBG.py is a variation of [pytwist](https://github.com/sturk111/pytwist) that contains the GN and MN couplings. For further documentation we refer 
+1. TDBG.py is a variation of [pytwist](https://github.com/sturk111/pytwist) that contains the graphene and moir couplings. For further documentation we refer 
 to the original repository - that goes beyond tDBG by including other moiré heterostructures.
 
  
