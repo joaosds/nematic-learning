@@ -34,12 +34,15 @@ from matplotlib import rc
 import matplotlib
 import math
 
+from matplotlib import rc
+import matplotlib.ticker
+
 rc("font", family="serif", serif="cm10")
-# rc('text', usetex=True)
 matplotlib.rcParams["text.usetex"] = True
-matplotlib.rcParams["text.latex.preamble"] = [
-    r"\usepackage{amsmath}"
-]  # for \text commandatplotlib.rcParams['text.latex.preamble'] = [r'\boldmath']
+matplotlib.rcParams["text.latex.preamble"] = [r"\usepackage{amsmath}"]
+
+matplotlib.rcParams["axes.linewidth"] = 2.4  # width of frames
+
 # Plot label font configuration
 # rc('font',**{'family':'serif','serif':['Helvetica']})
 # rc('text', usetex=True)
@@ -323,32 +326,10 @@ class ML:
         Reading in and processing training and validation data from
         npz files on hard disk.
         """
-        artificial = False
-        if artificial:
-            px = 65
-            nlabels = 2000
-            testds = np.zeros((7, nlabels, px, px))
-            with np.load(
-                "/home/jass/Downloads/datasetstrain/same padding/Teststrain3.npz"
-            ) as data:
-                # with np.load(
-                #     "/home/jass/Downloads/datasetstrain/Tes_sec4_5labels.npz"
-                # ) as data:
-                testds[0, :, :, :] = data["DataW"][0 : 3 * nlabels : 3]
-                testds[1, :, :, :] = data["DataW"][1 : 3 * nlabels + 1 : 3]
-                testds[2, :, :, :] = data["DataW"][2 : 3 * nlabels + 2 : 3]
-                testds[3, :, :, :] = data["DataX"][0 : 4 * nlabels : 4]
-                testds[4, :, :, :] = data["DataX"][1 : 4 * nlabels + 1 : 4]
-                testds[5, :, :, :] = data["DataX"][2 : 4 * nlabels + 2 : 4]
-                testds[6, :, :, :] = data["DataX"][3 : 4 * nlabels + 3 : 4]
-                test_labels = data["DataY"].astype(np.float32)[0:nlabels]
-                # test_labels2 = data["DataP"].astype(np.float32)[0:nlabels]
-
-        # print(testds.shape)
 
         exp = True
         if exp:
-            nlabels = 7
+            nlabels = 8
             px = 65
             testds = np.zeros((7, nlabels, px, px))
             with np.load(
@@ -370,17 +351,9 @@ class ML:
                 testds[6, :, :, :] = data["DataX"][3 : 4 * nlabels + 3 : 4]
                 test_labels = data["DataP"].astype(np.float32)[0:nlabels]
 
-        print(testds[0, 1, :, :])
-        print(testds[0, 1, :, :].mean())
-        print(testds[0, 1, :, :].std())
-        print(testds.shape)
         testds[:, :, :, :] = norm_and_hist_plots(
             testds, nlabels, norm=True, plt_hist=False
         )
-        print(testds.shape)
-        print(testds[0, 2, :, :])
-        print(testds[0, 2, :, :].mean())
-        print(testds[0, 2, :, :].std())
 
         test_dataset = tf.data.Dataset.from_tensor_slices(
             (
@@ -389,8 +362,8 @@ class ML:
                     process_images2(testds[1, :, :, :]),
                     process_images2(testds[2, :, :, :]),
                     process_images(testds[3, :, :, :]),
-                    #process_images(testds[4, :, :, :]),
-                    #process_images(testds[5, :, :, :]),
+                    process_images(testds[4, :, :, :]),
+                    process_images(testds[5, :, :, :]),
                     process_images(testds[6, :, :, :]),
                 ),
                 test_labels,
@@ -400,76 +373,22 @@ class ML:
         test_dataset2 = test_dataset
         test_ds_size = tf.data.experimental.cardinality(test_dataset).numpy()
 
-        test_ds_size2 = test_ds_size
-        print(test_dataset)
         print("Test data size of one energy channel:", test_ds_size)
         self.test_ds = test_dataset.batch(batch_size=1, drop_remainder=True)
         print(self.test_ds)
         self.test_ds2 = test_dataset2.batch(batch_size=1, drop_remainder=True)
 
-    def plot_training_data(self) -> None:
-        """
-        Plotting examples of the training data.
-        """
-        cmap = plt.cm.coolwarm.copy()
-        for images, labels in self.train_ds.take(1):
-            for i in range(0, 100):
-                plt.title(np.round(labels[i].numpy(), 4), fontsize=12)
-                plt.imshow(images[0][i].numpy(), cmap=cmap)
-                plt.colorbar()
-                plt.axis("off")
-                plt.show()
-                # plt.title(np.round(labels[0][1:3].numpy(), 4), fontsize=12)
-                # plt.imshow(images[0].numpy(), cmap=cmap)
-                # plt.colorbar()
-                # plt.axis("off")
-                # plt.show()
-
-    def evaluate_model(self) -> None:
-        """
-        Evaluate model on the test set to estimate the generalization error
-        """
-        # generate an image of the model
-        # keras.utils.plot_model(self.model, rankdir="LR", to_file="model.png")
-        # keras.utils.plot_model(self.model, to_file="model3points.png")
-        # print("\nEvaluating generalization:")
-        # self.model.evaluate(self.test_ds)
-        #
-        # pcmap = plt.cm.inferno.copy()
-        # plt.show()
-        test = self.test_ds.take(1)
-        for images, labels in test:
-            for i in range(1):
-                plt.title(
-                    "True: "
-                    + str(np.round(labels[i].numpy(), 3))
-                    + "\nPred.: "
-                    + str(np.round(self.model.predict(test)[i], 3)),
-                    # np.argmax for discrete director
-                    fontsize=12,
-                )
-                # plt.imshow(images[i].numpy(), cmap=cmap)
-                # plt.colorbar()
-                # plt.axis("off")
-                # plt.show()
-                print(images[0][i])
-                plt.imshow(images[0][i].numpy(), cmap="inferno")
-                plt.colorbar()
-                plt.axis("off")
-                # plt.savefig("example.pdf")
-                plt.show()
-
-    def analyize_model_exp(self) -> None:
+    def analyize_model_exp_err(self) -> None:
         """
         Analyze accuracy of nematic model.
         """
 
-        test_size = 7
+        test_size = 8
         true = []
         predict = self.model.predict(self.test_ds.take(test_size))
         counter = 0
 
-        label = np.zeros((7))
+        label = np.zeros((test_size))
 
         label[0] = -0.58
         label[1] = -0.45
@@ -477,7 +396,9 @@ class ML:
         label[3] = 0.00
         label[4] = 0.34
         label[5] = 0.47
-        label[6] = 0.67
+        label[6] = 0.61
+        label[7] = 0.67
+
         print(true, predict)
         for images, labels in self.test_ds.take(test_size):
             true.append(
@@ -489,7 +410,6 @@ class ML:
         print("here")
         print(true)
         print(np.array(predict))
-
         plt.clf()
         fig, ax = plt.subplots()
         # ax.set_aspect(1)
@@ -499,7 +419,176 @@ class ML:
         plt.xticks(fontsize=15)
         plt.yticks(fontsize=15)
         plt.minorticks_on()
+        plt.ylim(0, 0.15)
+        plt.tick_params(which="both", width=0.7, direction="in")
+        # plt.scatter(true[:], predict[:, 0])
+        plt.plot(
+            true[:],
+            predict[:, 0],
+            marker="s",
+            linestyle="--",
+            color="black",
+        )
+        plt.xlabel(r"Filling of the CFB $(n_{s})$", size=15)
+        plt.ylabel(r"$\Phi_{\mathrm{MN}}" + "$ predicted", size=15)
+        plt.tight_layout()
+        plt.savefig(f"phimn_exp2_err.pdf")
+
+        mean = np.array(
+            [
+                [0.0411883, 0.06893247, 0.00191818],
+                [0.03754662, 0.0747593, 0.00279409],
+                [0.0424214, 0.0704508, 0.00211338],
+                [0.04012687, 0.03037238, 0.00283636],
+                [0.05592582, 0.05704093, 0.00162906],
+                [0.07364587, 0.03364383, 0.00246957],
+                [0.07618995, 0.03131388, 0.00116626],
+                [0.0803389, 0.02060873, 0.00128506],
+            ]
+        )
+        std = np.array(
+            [
+                [0.00365687, 0.00485852, 0.00031212],
+                [0.00568503, 0.00182443, 0.00031751],
+                [0.00549354, 0.00511263, 0.0001049],
+                [0.00510609, 0.00195168, 0.00012235],
+                [0.00474071, 0.00109793, 0.00024645],
+                [0.00588057, 0.0027129, 0.00034623],
+                [0.00431731, 0.00216265, 0.0001475],
+                [0.0034788, 0.00401435, 0.00040419],
+            ]
+        )
+        plt.clf()
+        fig, ax = plt.subplots()
+        # ax.set_aspect(1)
+        plt.tick_params(which="both", width=2.5, direction="in")
+        plt.tick_params(which="major", length=9)
+        plt.tick_params(which="minor", length=6)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+        plt.minorticks_on()
         plt.ylim(0, 0.1)
+        plt.tick_params(which="both", width=0.7, direction="in")
+        plt.errorbar(
+            true[:],
+            mean[:, 0],
+            std[:, 0],
+            marker="s",
+            linestyle="--",
+            color="black",
+            label=r"$\Phi_{\mathrm{MN}}$ (Moiré)",
+        )
+        plt.fill_between(
+            true[:],
+            mean[:, 0] - std[:, 0],
+            mean[:, 0] + std[:, 0],
+            alpha=0.6,
+            color="gray",
+        )
+        plt.errorbar(
+            true[:],
+            mean[:, 1],
+            std[:, 1],
+            marker="d",
+            linestyle="--",
+            color="red",
+            label=r"$\Phi_{\mathrm{GN}}$ (Graphene)",
+        )
+
+        plt.fill_between(
+            true[:],
+            mean[:, 1] - std[:, 1],
+            mean[:, 1] + std[:, 1],
+            alpha=0.6,
+            color="red",
+        )
+        plt.xlabel(r"Filling of the CFB $(n_{s})$", size=20)
+        plt.ylabel(r"Predicted Nematic Intensities (eV)", size=20)
+        plt.legend(loc="lower left")
+        plt.tight_layout()
+        plt.savefig(f"phign_exp2.pdf")
+
+        predict[:, 2] = 100 * predict[:, 2]
+        mean[:, 2] = 100 * mean[:, 2]
+        std[:, 2] = 100 * std[:, 2]
+
+        plt.clf()
+        fig, ax = plt.subplots()
+        # ax.set_aspect(1)
+        plt.tick_params(which="both", width=1.8, direction="in")
+        plt.tick_params(which="major", length=8)
+        plt.tick_params(which="minor", length=5)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+        plt.minorticks_on()
+        plt.ylim(0, 0.8)
+        plt.tick_params(which="both", width=0.7, direction="in")
+        plt.errorbar(
+            label,
+            mean[:, 2],
+            std[:, 2],
+            marker="d",
+            linestyle="--",
+            color="orange",
+        )
+        plt.fill_between(
+            true[:],
+            mean[:, 2] - std[:, 2],
+            mean[:, 2] + std[:, 2],
+            alpha=0.5,
+            color="orange",
+        )
+        plt.xlabel(r"Filling of the CFB $(n_{s})$", size=20)
+        plt.ylabel(r"Predicted Strain strength $\epsilon$ (\%)", size=20)
+        # current_values = plt.gca().get_xticks()
+        # plt.gca().set_xticklabels(['{:,.2f}'.format(x) for x in current_values])
+        plt.tight_layout()
+        # plt.show()
+        plt.savefig(f"epsilon_exp2_err.pdf")
+
+
+    def analyize_model_exp(self) -> None:
+        """
+        Analyze accuracy of nematic model.
+        """
+
+        test_size = 8
+        true = []
+        predict = self.model.predict(self.test_ds.take(test_size))
+        counter = 0
+
+        label = np.zeros((test_size))
+
+        label[0] = -0.58
+        label[1] = -0.45
+        label[2] = -0.32
+        label[3] = 0.00
+        label[4] = 0.34
+        label[5] = 0.47
+        label[6] = 0.61
+        label[7] = 0.67
+
+        print(true, predict)
+        for images, labels in self.test_ds.take(test_size):
+            true.append(
+                labels.numpy(),
+            )
+            counter += 1
+
+        true = np.array([item for sublist in true for item in sublist])
+        print("here")
+        print(true)
+        print(np.array(predict))
+        plt.clf()
+        fig, ax = plt.subplots()
+        # ax.set_aspect(1)
+        plt.tick_params(which="both", width=1.5, direction="in")
+        plt.tick_params(which="major", length=7)
+        plt.tick_params(which="minor", length=4)
+        plt.xticks(fontsize=15)
+        plt.yticks(fontsize=15)
+        plt.minorticks_on()
+        plt.ylim(0, 0.15)
         plt.tick_params(which="both", width=0.7, direction="in")
         # plt.scatter(true[:], predict[:, 0])
         plt.plot(
@@ -544,20 +633,42 @@ class ML:
         # plt.xlabel(r"Filling of the CFB $(n_{s})$", size=15)
         # # plt.ylabel(r"$\Phi_{\mathrm{GN}}" + "$ predicted (eV)", size=15)
         # plt.ylabel(r"Predicted sin/cos of $\varphi$", size=15)
-        # plt.legend(loc="lower left")
+        # plt.legend(1loc="lower left")
         # plt.tight_layout()
         # plt.savefig(f"phisincos_2.pdf")
 
+        mean = np.array(
+            [
+                [0.0411883, 0.06893247, 0.00191818],
+                [0.03754662, 0.0747593, 0.00279409],
+                [0.0424214, 0.0704508, 0.00211338],
+                [0.04012687, 0.03037238, 0.00283636],
+                [0.05592582, 0.05704093, 0.00162906],
+                [0.07364587, 0.03364383, 0.00246957],
+                [0.0803389, 0.02060873, 0.00128506],
+            ]
+        )
+        std = np.array(
+            [
+                [0.00365687, 0.00485852, 0.00031212],
+                [0.00568503, 0.00182443, 0.00031751],
+                [0.00549354, 0.00511263, 0.0001049],
+                [0.00510609, 0.00195168, 0.00012235],
+                [0.00474071, 0.00109793, 0.00024645],
+                [0.00588057, 0.0027129, 0.00034623],
+                [0.0034788, 0.00401435, 0.00040419],
+            ]
+        )
         plt.clf()
         fig, ax = plt.subplots()
         # ax.set_aspect(1)
-        plt.tick_params(which="both", width=1.5, direction="in")
-        plt.tick_params(which="major", length=7)
-        plt.tick_params(which="minor", length=4)
-        plt.xticks(fontsize=15)
-        plt.yticks(fontsize=15)
+        plt.tick_params(which="both", width=2.5, direction="in")
+        plt.tick_params(which="major", length=8)
+        plt.tick_params(which="minor", length=5)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
         plt.minorticks_on()
-        plt.ylim(0, 0.08)
+        plt.ylim(0, 0.1)
         plt.tick_params(which="both", width=0.7, direction="in")
         plt.plot(
             true[:],
@@ -567,64 +678,119 @@ class ML:
             color="black",
             label=r"$\Phi_{\mathrm{MN}}$ (Moiré)",
         )
+        # plt.errorbar(
+        #     true[:],
+        #     mean[:, 0],
+        #     std[:, 0],
+        #     marker="s",
+        #     linestyle="--",
+        #     color="black",
+        #     label=r"$\Phi_{\mathrm{MN}}$ (Moiré)",
+        # )
+        # plt.fill_between(
+        #     true[:],
+        #     mean[:, 0] - std[:, 0],
+        #     mean[:, 0] + std[:, 0],
+        #     alpha=0.6,
+        #     color="gray",
+        # )
+        # plt.errorbar(
+        #     true[:],
+        #     mean[:, 1],
+        #     std[:, 1],
+        #     marker="d",
+        #     linestyle="--",
+        #     color="red",
+        #     label=r"$\Phi_{\mathrm{GN}}$ (Graphene)",
+        # )
+
+        # plt.fill_between(
+        #     true[:],
+        #     mean[:, 1] - std[:, 1],
+        #     mean[:, 1] + std[:, 1],
+        #     alpha=0.6,
+        #     color="red",
+        # )
         plt.plot(
             true[:],
             predict[:, 1],
             marker="d",
             linestyle="--",
+            # color="black",
+            # label=r"$\Phi_{\mathrm{MN}}$ (Moiré)",
             color="red",
             label=r"$\Phi_{\mathrm{GN}}$ (Graphene)",
         )
-        plt.xlabel(r"Filling of the CFB $(n_{s})$", size=15)
+        plt.xlabel(r"Filling of the CFB $(n_{s})$", size=18)
         # plt.ylabel(r"$\Phi_{\mathrm{GN}}" + "$ predicted (eV)", size=15)
-        plt.ylabel(r"Predicted Nematic Intensities (eV)", size=15)
+        plt.ylabel(r"Predicted Nematic Intensities (eV)", size=18)
         plt.legend(loc="lower left")
         plt.tight_layout()
         plt.savefig(f"phign_exp2.pdf")
 
         predict[:, 2] = 100 * predict[:, 2]
+        mean[:, 2] = 100 * mean[:, 2]
+        std[:, 2] = 100 * std[:, 2]
 
         plt.clf()
         fig, ax = plt.subplots()
         # ax.set_aspect(1)
-        plt.tick_params(which="both", width=1.5, direction="in")
-        plt.tick_params(which="major", length=7)
-        plt.tick_params(which="minor", length=4)
-        plt.xticks(fontsize=15)
-        plt.yticks(fontsize=15)
+        plt.tick_params(which="both", width=1.8, direction="in")
+        plt.tick_params(which="major", length=8)
+        plt.tick_params(which="minor", length=5)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
         plt.minorticks_on()
         plt.ylim(0, 0.8)
         plt.tick_params(which="both", width=0.7, direction="in")
         plt.plot(
-            label,
+            true[:],
             predict[:, 2],
             marker="d",
             linestyle="--",
+            # color="black",
+            # label=r"$\Phi_{\mathrm{MN}}$ (Moiré)",
             color="orange",
         )
+        # plt.errorbar(
+        #     label,
+        #     mean[:, 2],
+        #     std[:, 2],
+        #     marker="d",
+        #     linestyle="--",
+        #     color="orange",
+        # )
+        # plt.fill_between(
+        #     true[:],
+        #     mean[:, 2] - std[:, 2],
+        #     mean[:, 2] + std[:, 2],
+        #     alpha=0.5,
+        #     color="yellow",
+        # )
         # plt.plot([-0.58, 0.67], [0, 0.8], linestyle="--", c="white")
-        plt.xlabel(r"Filling of the CFB $(n_{s})$", size=15)
-        plt.ylabel(r"Predicted Strain strength $\epsilon$ (\%)", size=15)
+        plt.xlabel(r"Filling of the CFB $(n_{s})$", size=18)
+        plt.ylabel(r"Predicted Strain strength $\epsilon$ (\%)", size=18)
         # current_values = plt.gca().get_xticks()
         # plt.gca().set_xticklabels(['{:,.2f}'.format(x) for x in current_values])
         plt.tight_layout()
+        # plt.show()
         plt.savefig(f"epsilon_exp2.pdf")
 
         plt.clf()
         fig, ax = plt.subplots()
         # ax.set_aspect(1)
-        plt.tick_params(which="both", width=1.5, direction="in")
-        plt.tick_params(which="major", length=7)
-        plt.tick_params(which="minor", length=4)
-        plt.xticks(fontsize=15)
-        plt.yticks(fontsize=15)
+        plt.tick_params(which="both", width=1.8, direction="in")
+        plt.tick_params(which="major", length=10)
+        plt.tick_params(which="minor", length=6)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
         plt.minorticks_on()
         plt.ylim(0, 1)
         plt.tick_params(which="both", width=0.7, direction="in")
         plt.scatter(true[:], predict[:, 3])
         # plt.plot([-0.58, 0.67], [0, 0.8], linestyle="--", c="white")
-        plt.xlabel(r"Filling of the CFB $(n_{s})$", size=15)
-        plt.ylabel(r"$\theta_{epsilon}" + "$ predicted ", size=15)
+        plt.xlabel(r"Filling of the CFB $(n_{s})$", size=20)
+        plt.ylabel(r"$\theta_{epsilon}" + "$ predicted ", size=20)
         plt.tight_layout()
         plt.savefig(f"theta_epsilon_exp2.pdf")
         # Prediction of angle
@@ -677,24 +843,9 @@ def main_train(model: str, batch_size: int, epochs: int) -> None:
     """
     ml = ML(model, batch_size, epochs)
 
-    # ml.process_training_data()
-    #### ml.plot_training_data()
-    # ml.create_model()
-    # ml.train_model()
-    # ml.plot_history()
-
-    # ml.process_test_data()
-    ##ml.evaluate_model()
-    ### # # ml.image_error()
-    # ml.analyize_model()
-
-    # ml.process_training_data_7channels()
-    ## ml.plot_training_data()
-    # ml.create_model_7channels()
-    # ml.train_model()
     ml.process_data()
-    # ml.evaluate_model()
-    ml.analyize_model_exp()
+    # ml.analyize_model_exp()
+    ml.analyize_model_exp_err()
 
 
 if __name__ == "__main__":

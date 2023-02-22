@@ -7,6 +7,8 @@ import cv2
 import matplotlib
 import skimage.transform as st
 import pywt
+
+import skimage.filters
 from matplotlib import rc
 import matplotlib.ticker
 
@@ -26,7 +28,8 @@ plot_it_partial = False
 plot_it_post = False
 
 # Plotting all the DOS(r) images
-plot_final = True
+plot_final = False
+
 
 def norm_and_hist_plots(
     ds: np.ndarray,
@@ -152,7 +155,7 @@ def norm_and_hist_plots(
     return ds
 
 
-def wavelet_trafo(ldos: list, plot_it=False) -> np.ndarray:
+def wavelet_trafo(ldos: list, plot_it=False, pxsca=65) -> np.ndarray:
     """
     Function to perform continous wavelet transformation with pywavelets library.
     https://pywavelets.readthedocs.io/en/latest/ref/cwt.html
@@ -168,14 +171,14 @@ def wavelet_trafo(ldos: list, plot_it=False) -> np.ndarray:
         This gives the 2D image of the wavelet transform.
 
     """
-    coef, _ = pywt.cwt(ldos, np.arange(1, 66), "morl")
+    coef, _ = pywt.cwt(ldos, np.arange(1, pxsca + 1), "morl")
     if plot_it:
         cmap = plt.cm.coolwarm.copy()
         plt.imshow(
             coef,
             cmap=cmap,
             interpolation="none",
-            extent=[1, 66, 1, 66],
+            extent=[1, 66, pxsca + 1, pxsca + 1],
             aspect="auto",
             # vmax=abs(coef).max(),
             # vmin=-abs(coef).max(),
@@ -193,20 +196,24 @@ dos_nemat = io.loadmat("m_nematic.mat")
 dosothers = io.loadmat("maps.mat")
 en = io.loadmat("v.mat")
 
+nsamples = 8
 dosr = []
 sca = []
 vectorized_images = []
 px = 65
-scatemp = np.zeros((px, px, 3))  # Scaleogram of 3 stack points
-label = np.zeros((7))
+pxsca = 65
+scatemp = np.zeros((pxsca, pxsca, 3))  # Scaleogram of 3 stack points
+label = np.zeros((nsamples))
 
 # Convert dict to numpy array
 # N = 101 (energies between -100-100 meV; resolution = 2 meV)
 # Energy data is contained in 'v619' key
 # dim(en) = N
 en = np.array(en.get("v619"))
-en[:] = np.round(en[:], 4)
-dos = np.zeros((64, 64, len(en), 7))
+ndosr = 4
+en[:] = np.round(en[:], ndosr)
+# 64 is the initial dimension from the exp data.
+dos = np.zeros((64, 64, len(en), nsamples))
 # Dos(r) Data close to charge neutrality (no nematicity), contained in 'v619' key
 # dim(dos_cnp) = (64,64,N)
 dos_cnp = np.array(dos_cnp.get("m619"))
@@ -243,7 +250,8 @@ dos[:, :, :, 2] = np.array(dosothers.get("m374"))
 dos[:, :, :, 3] = np.array(dosothers.get("m619"))
 dos[:, :, :, 4] = np.array(dosothers.get("m378"))
 dos[:, :, :, 5] = np.array(dosothers.get("m428"))
-dos[:, :, :, 6] = np.array(dosothers.get("m387"))
+dos[:, :, :, 6] = np.array(dosothers.get("m358"))
+dos[:, :, :, 7] = np.array(dosothers.get("m387"))
 
 # Dictionary and vector with filling fraction of the CFB
 d = {
@@ -268,7 +276,8 @@ label[2] = -0.32
 label[3] = 0.00
 label[4] = 0.34
 label[5] = 0.47
-label[6] = 0.67
+label[6] = 0.61
+label[7] = 0.67
 
 # The numbers refer to the specific pixel position in the original images
 # corresponding to BAAC, ABAB, ABCA (Average between 5 positions)
@@ -276,6 +285,7 @@ label[6] = 0.67
 # ---------------------------- 1st PART - DOS(w) -------------------------
 # The en vector is reversed
 en2 = np.arange(0.06, -0.07, -0.002)
+# en2 = np.arange(0.1, -0.102, -0.002)
 dosBAAC2 = np.zeros((len(en2)))
 dosABCA2 = np.zeros((len(en2)))
 dosABAB2 = np.zeros((len(en2)))
@@ -439,7 +449,7 @@ if plot_it:
     # plt.show()
 
 for channel in range(len(label)):
-    channel = 3
+
     dosBAAC[:] = (
         dos[55, 28, :, channel]
         + dos[19, 50, :, channel]
@@ -541,7 +551,7 @@ for channel in range(len(label)):
         plt.plot(en2[:], dosBAAC2[:] / a1 + 1, "--bo", c="purple", label="BAAC")
         plt.plot(en2[:], dosABAB2[:] / a2 + 2, "--bo", c="red", label="ABAB")
         plt.plot(en2[:], dosABCA2[:] / a3, "--bo", c="black", label="ABCA")
-        plt.xlim(-0.07, 0.06)
+        plt.xlim(min(en2), max(en2))
         plt.legend()
         plt.tight_layout()
         plt.savefig("partialplot.pdf", dpi=300)
@@ -617,10 +627,10 @@ def dos_processing(data: np.ndarray, px=65) -> np.ndarray:
         img = ycrcb_img
         # Blur image to remove some noies/defect
 
-        # sigma = 10
-        # img = skimage.filters.gaussian(
-        #     img, sigma=(sigma, sigma), truncate=3.5, channel_axis=2
-        # )
+        sigma = 1
+        img = skimage.filters.gaussian(
+            img, sigma=(sigma, sigma), truncate=3.5, channel_axis=2
+        )
 
         # Cropping image to size consistent in training dataset
         # dostemp final shape = 65x65
@@ -714,12 +724,19 @@ ind_cfb = ind_en(en, 0.002)
 ind_rc1 = ind_en(en, 0.044)
 index[5, :] = np.array([ind_rv1, ind_vfb, ind_cfb, ind_rc1])
 
+# doping 0.61 n_s
+ind_rv1 = ind_en(en, -0.066)
+ind_vfb = ind_en(en, -0.018)
+ind_cfb = ind_en(en, -0.004)
+ind_rc1 = ind_en(en, 0.04)
+index[6, :] = np.array([ind_rv1, ind_vfb, ind_cfb, ind_rc1])
+
 # doping 0.67 n_s, displacement field 0.16 V nm^{-1}
 ind_rv1 = ind_en(en, -0.068)
 ind_vfb = ind_en(en, -0.012)
 ind_cfb = ind_en(en, -0.004)
 ind_rc1 = ind_en(en, 0.040)
-index[6, :] = np.array([ind_rv1, ind_vfb, ind_cfb, ind_rc1])
+index[7, :] = np.array([ind_rv1, ind_vfb, ind_cfb, ind_rc1])
 
 dataf = np.zeros((4, px, px))
 # index = index()
@@ -772,13 +789,13 @@ np.savez(
     DataP=label,
 )
 
-
 print(np.array(dosr).shape)
 print(np.array(sca).shape)
+plot_final = False
 if plot_final:
     dosr = np.array(dosr)
     print(len(dosr))
-    nsamples = 7
+    nsamples = 8
     matplotlib.rcParams["axes.linewidth"] = 1.4  # width of frames
     f, ax = plt.subplots(nsamples, 4, constrained_layout=True)
 
@@ -799,6 +816,6 @@ if plot_final:
         [axi.get_xaxis().set_ticks([]) for axi in ax.ravel()]
         j += 1
 
-    plt.show()
+    # plt.show()
     plt.tight_layout()
     plt.savefig("plot_7_dosr.pdf", dpi=300)
