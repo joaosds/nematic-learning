@@ -8,7 +8,7 @@ This repository contains all the scripts used to generate and analyze the data i
 
 arXiv: https://arxiv.org/abs/2302.12274
 
-Zenodo: 
+Zenodo: https://zenodo.org/record/7698738
 
 Authors: Simon Eli Turkel ([@sturk111](https://www.github.com/sturk111)), Abhay Pasuphaty (Columbia University), Stefan Obernauer ([@stefob](https://www.github.com/stefob)), João Augusto Sobral and Mathias S. Scheurer (University of Innsbruck).
 
