@@ -6,9 +6,9 @@
 ---
 This repository contains all the scripts used to generate and analyze the data in the paper  "Machine Learning Microscopic Form of Nematic Order in twisted double-bilayer graphene (2023)".
 
-arxiv: https://arxiv.org/abs/2302.12274.
+arXiv: https://arxiv.org/abs/2302.12274
 
-Zenodo
+Zenodo: 
 
 Authors: Simon Eli Turkel ([@sturk111](https://www.github.com/sturk111)), Abhay Pasuphaty (Columbia University), Stefan Obernauer ([@stefob](https://www.github.com/stefob)), João Augusto Sobral and Mathias S. Scheurer (University of Innsbruck).
 
