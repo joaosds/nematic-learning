@@ -16,8 +16,6 @@ import tensorflow as tf
 from tensorflow import keras
 from tqdm import tqdm
 from stm import STM
-
-
 import matplotlib
 from matplotlib import rc
 import matplotlib.ticker
@@ -25,8 +23,7 @@ import scipy
 
 rc("font", family="serif", serif="cm10")
 matplotlib.rcParams["text.usetex"] = True
-# matplotlib.rcParams["text.latex.preamble"] = [r"\usepackage{amsmath}"]
-
+matplotlib.rcParams["text.latex.preamble"] = r"\usepackage{amsmath}"
 matplotlib.rcParams["axes.linewidth"] = 2.4  # width of frames
 
 
@@ -733,7 +730,7 @@ class ML(STM):
             cbar.set_label("MAE", rotation=270, labelpad=20, fontsize=font_sizemae)
             cbar.ax.tick_params(labelsize=font_sizemae)
             mape, rsq = stat(true[:, i], predict[:, i])
-            metrics = f"$R^{2}$: " + str(rsq) + "\n" + "MAPE: " + str(mape)
+            metrics = f"R$^{2}$: " + str(rsq) + "\n" + "MAPE: " + str(mape)
             plt.text(
                 0.09,
                 0.02,
