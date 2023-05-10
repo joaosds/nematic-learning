@@ -6,7 +6,7 @@
 ---
 This repository contains all the scripts used to generate and analyze the data in the paper  "Machine Learning Microscopic Form of Nematic Order in twisted double-bilayer graphene (2023)".
 
-arxiv: .
+arxiv: [arxiv.org/abs/2302.12274](arxiv.org/abs/2302.12274).
 
 Zenodo Link:
 

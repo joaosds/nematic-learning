@@ -21,12 +21,14 @@ from stm import STM
 import matplotlib
 from matplotlib import rc
 import matplotlib.ticker
+import scipy
 
 rc("font", family="serif", serif="cm10")
 matplotlib.rcParams["text.usetex"] = True
-matplotlib.rcParams["text.latex.preamble"] = [r"\usepackage{amsmath}"]
+# matplotlib.rcParams["text.latex.preamble"] = [r"\usepackage{amsmath}"]
 
 matplotlib.rcParams["axes.linewidth"] = 2.4  # width of frames
+
 
 class OOMFormatter(matplotlib.ticker.ScalarFormatter):
     def __init__(self, order=0, fformat="%1.1f", offset=False, mathText=True):
@@ -43,6 +45,14 @@ class OOMFormatter(matplotlib.ticker.ScalarFormatter):
         self.format = self.fformat
         if self._useMathText:
             self.format = r"$\:\mathdefault{%s}$" % self.format
+
+
+def stat(y_test, pred):
+    y_test, pred = np.array(y_test), np.array(pred)
+    mape = np.round(np.mean(np.abs((y_test - pred) / y_test)), 3)
+    slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(y_test, pred)
+    rsq = np.round(r_value**2, 3)
+    return mape, rsq
 
 
 def process_images(image):
@@ -317,10 +327,11 @@ class ML(STM):
         Reading in and processing training and validation data from
         npz files on hard disk.
         """
-        with np.load("trafo_test.npz") as data:
+        # with np.load("trafo_test.npz") as data:
+        with np.load("appd_trafo_test.npz") as data:
             trafo_test = data["DataX"].astype(np.float32)[..., tf.newaxis]
 
-        with np.load("test.npz") as data:
+        with np.load("appd_test.npz") as data:
             test_examples_1 = data["DataX"][0 : 4 * len(trafo_test) : 4]
             test_examples_2 = data["DataX"][1 : 4 * len(trafo_test) + 1 : 4]
             test_examples_3 = data["DataX"][2 : 4 * len(trafo_test) + 2 : 4]
@@ -721,6 +732,16 @@ class ML(STM):
             cbar = plt.colorbar(format=OOMFormatter(-3, mathText=True))
             cbar.set_label("MAE", rotation=270, labelpad=20, fontsize=font_sizemae)
             cbar.ax.tick_params(labelsize=font_sizemae)
+            mape, rsq = stat(true[:, i], predict[:, i])
+            metrics = f"$R^{2}$: " + str(rsq) + "\n" + "MAPE: " + str(mape)
+            plt.text(
+                0.09,
+                0.02,
+                metrics,
+                bbox=dict(facecolor="none", edgecolor="black", boxstyle="round,pad=1"),
+                fontsize=font_sizemae,
+                ha="right",
+            )
             plt.tight_layout()
             plt.savefig(f"alpha{i}.pdf")
 
@@ -827,9 +848,9 @@ def main_train(model: str, batch_size: int, epochs: int) -> None:
 
 
 if __name__ == "__main__":
-
     cfg = {
-        "model": "model.h5",
+        # "model": "model.h5",
+        "model": "appd_model.h5",
         "batch_size": 32,
         "epochs": 20000,
     }
