@@ -29,6 +29,6 @@ at `expdata_preprocessing.py`.
 current labels to different ones (such as $\beta =\{\varphi\} \rightarrow \beta^{\prime} = \{\sin\left(\varphi\right), \cos\left(\varphi\right)\}$), and just  check the dimensions of 
 the `npz` files.
 
-
+<!---
 Note: Codes will be eventually refactored for better readability.
-
+-->
