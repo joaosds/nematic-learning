@@ -13,16 +13,9 @@ Zenodo Link: [https://zenodo.org/record/7698738](https://zenodo.org/record/76987
 Authors: Simon Eli Turkel ([@sturk111](https://www.github.com/sturk111)), Abhay Pasuphaty (Columbia University), Stefan Obernauer ([@stefob](https://www.github.com/stefob)), João Augusto Sobral and Mathias S. Scheurer (University of Innsbruck).
 
 ---
-- [Overview](#overview)
-- [Documentation](#documentation)
-- [System Requirements](#system-requirements)
 - [Installation Guide](#installation-guide)
 - [Short Instructions](#short-instructions)
 - [License](#license)
-- 
-# System Requirements
-## Hardware requirements
-`mgcpy` package requires only a standard computer with enough RAM to support the in-memory operations.
 
 ## Software requirements
 ### OS Requirements
