@@ -15,6 +15,7 @@ Authors: Simon Eli Turkel ([@sturk111](https://www.github.com/sturk111)), Abhay 
 ---
 - [Installation Guide](#installation-guide)
 - [Short Instructions](#short-instructions)
+- [Install from Github + dependencies](#installation)
 - [License](#license)
 
 ## Software requirements
@@ -22,7 +23,7 @@ Authors: Simon Eli Turkel ([@sturk111](https://www.github.com/sturk111)), Abhay 
 The package has been tested on the following systems. 
 + Linux: CentOS 6.8, Fedora 38 and Arch Linux
 
-### Install from Github + dependencies
+## Install from Github + dependencies
 
  ```
  git clone https://github.com/joaosds/nematic-learning
