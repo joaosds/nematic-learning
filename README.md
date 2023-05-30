@@ -61,9 +61,9 @@ at `expdata_preprocessing.py`.
 current labels to different ones (such as $\beta =\{\varphi\} \rightarrow \beta^{\prime} = \{\sin\left(\varphi\right), \cos\left(\varphi\right)\}$), and just  check the dimensions of 
 the `npz` files.
  ## Runtime 
-Typical install time should not exceed a few minutes. Runtime should not also not exceed a few minutes when using only test datasets to reproduce the plots in the paper.
+- Typical install time should not exceed a few minutes. Runtime should not also not exceed a few minutes when using only test datasets to reproduce the plots in the paper.
 
-The time to train and create datasets from scratch is dependent on your hardware configuration. We used the set of clusters from the University of Innsbruck (UIBK) (https://www.uibk.ac.at/th-physik/howto/hpc/regulus.html) for (i) producing the datasets and (ii) training the ML models. For each run, we typically reserve 40GB of RAM. The specific CPU from the clusters depends on their availability. Although we did not test the computational cost systematically, we also ran the codes on two personal computers A and B which can
+- The time to train and create datasets from scratch is dependent on your hardware configuration. We used the set of clusters from the University of Innsbruck (UIBK) (https://www.uibk.ac.at/th-physik/howto/hpc/regulus.html) for (i) producing the datasets and (ii) training the ML models. For each run, we typically reserve 40GB of RAM. The specific CPU from the clusters depends on their availability. Although we did not test the computational cost systematically, we also ran the codes on two personal computers A and B which can
 represent low and high-end performing cases with the following hardware:
 ```
 • Computer A: (CPU) AMD Ryzen 7 5800H with Radeon Graphics (16) @ 3.200GHz, (GPU 1):
