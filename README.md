@@ -38,9 +38,17 @@ In case you need the dependencies:
  cd nematic-learning
  pip install -r requirements.txt
  ```
- Typical install time should not exceed a few minutes.
- 
+ ## Runtime 
+Typical install time should not exceed a few minutes. For runtime should not exceed a few minutes for using only testdatasets. To train and create datasets from scratch is typically dependent on your hardware configuration. We used the set of clusters from the University of Innsbruck (UIBK) (https://www.uibk.ac.at/th-physik/howto/hpc/regulus.html) for (i) producing the datasets and (ii) training the ML models. For each run, we typically reserve 40GB of RAM. The specific CPU from the clusters depends on their availability. Although we did not test the computational cost systematically, we also ran the codes on two personal computers A and B which can
+represent low and high-end performing cases with the following hardware:
+• Computer A: (CPU) AMD Ryzen 7 5800H with Radeon Graphics (16) @ 3.200GHz, (GPU 1):
+AMD ATI Radeon Vega Series / Radeon Vega Mobile Series, (GPU 2): NVIDIA GeForce RTX
+3060 Mobile / Max-Q, 16 GB of RAM.
+• Computer B: (CPU) Intel i5-7200U (4) @ 2500GHz, (GPU) Intel HD Graphics 620, 12GB of RAM.
+For instance, training the model we show the loss curve of in Fig. R1 under the same conditions takes
+
 ## Short Instructions
+
 ### Continuum model for tDBG
 1. TDBG.py is a variation of [pytwist](https://github.com/sturk111/pytwist) that contains the graphene and moiré couplings. For further documentation we refer 
 to the original repository - that goes beyond tDBG by including other moiré heterostructures.
