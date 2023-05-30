@@ -56,7 +56,7 @@ For instance, training the model we show the loss curve of in Supplementary Fig.
 ## Short Instructions
 
 ### Continuum model for tDBG
-1. TDBG.py is a variation of [pytwist](https://github.com/sturk111/pytwist) that contains the graphene and moiré couplings. For further documentation we refer 
+1. TDBG.py is a variation of [pytwist](https://github.com/sturk111/pytwist) that contains the graphene and moiré nematic couplings. For further documentation we refer 
 to the original repository - that goes beyond tDBG by including other moiré heterostructures.
 
 ### Toy model for TBG
