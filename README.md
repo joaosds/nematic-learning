@@ -12,13 +12,37 @@ Zenodo Link: [https://zenodo.org/record/7698738](https://zenodo.org/record/76987
 
 Authors: Simon Eli Turkel ([@sturk111](https://www.github.com/sturk111)), Abhay Pasuphaty (Columbia University), Stefan Obernauer ([@stefob](https://www.github.com/stefob)), João Augusto Sobral and Mathias S. Scheurer (University of Innsbruck).
 
- Install the dependencies: `pip install -r requirements.txt`, and `Python 3.9.10`.
-#### Continuum model for tDBG
+---
+- [Overview](#overview)
+- [Documentation](#documentation)
+- [System Requirements](#system-requirements)
+- [Installation Guide](#installation-guide)
+- [Short Instructions](#short-instructions)
+- [License](#license)
+- 
+# System Requirements
+## Hardware requirements
+`mgcpy` package requires only a standard computer with enough RAM to support the in-memory operations.
+
+## Software requirements
+### OS Requirements
+The package has been tested on the following systems. 
++ Linux: CentOS 6.8, Fedora 38 and Arch Linux
+
+### Install from Github + dependencies
+
+ ```
+ git clone https://github.com/joaosds/nematic-learning
+ cd nematic-learning
+ pip install -r requirements.txt
+ ```
+ 
+### Short Instructions
+## Continuum model for tDBG
 1. TDBG.py is a variation of [pytwist](https://github.com/sturk111/pytwist) that contains the graphene and moiré couplings. For further documentation we refer 
 to the original repository - that goes beyond tDBG by including other moiré heterostructures.
 
- 
-#### Toy model for TBG
+## Toy model for TBG
 
 2. Files for the investigations in Appendix D can be found in the folder `app_d` and some auxiliary *Mathematica* notebooks in `minimalmodel/matnb`.
 #### Information about the experimental $D_{\text{exp}}$ and theoretical $D_{\text{th}}$ datasets
@@ -30,6 +54,7 @@ at `expdata_preprocessing.py`.
 current labels to different ones (such as $\beta =\{\varphi\} \rightarrow \beta^{\prime} = \{\sin\left(\varphi\right), \cos\left(\varphi\right)\}$), and just  check the dimensions of 
 the `npz` files.
 
+#### License
 
 Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
 
@@ -41,6 +66,4 @@ This work is licensed under a
 [cc-by]: http://creativecommons.org/licenses/by/4.0/
 [cc-by-image]: https://i.creativecommons.org/l/by/4.0/88x31.png
 [cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
-<!---
-Note: Codes will be eventually refactored for better readability.
--->
+
