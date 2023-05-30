@@ -24,7 +24,7 @@ The package has been tested on the following systems with Python >= 3.9:
 
 + Linux: CentOS 6.8, Fedora 38 and Arch Linux
 
-There is no required non-standard hardware. 
+There is no required non-standard hardware.  
 
 ## Install from Github
 
@@ -38,6 +38,7 @@ In case you need the dependencies:
  cd nematic-learning
  pip install -r requirements.txt
  ```
+ Typical install time should not exceed a few minutes.
  
 ## Short Instructions
 ### Continuum model for tDBG
