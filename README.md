@@ -15,7 +15,7 @@ Authors: Simon Eli Turkel ([@sturk111](https://www.github.com/sturk111)), Abhay 
 ---
 - [Installation Guide](#installation-guide)
 - [Short Instructions](#short-instructions)
-- [Install from Github + dependencies](#installation)
+- [Install from Github + dependencies](#install-from-github-+-dependencies)
 - [License](#license)
 
 ## Software requirements
