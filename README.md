@@ -24,6 +24,8 @@ The package has been tested on the following systems.
 
 + Linux: CentOS 6.8, Fedora 38 and Arch Linux
 
+There is no required non-standard hardware. 
+
 ## Install from Github
 
  ```
