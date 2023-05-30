@@ -39,7 +39,7 @@ In case you need the dependencies:
  pip install -r requirements.txt
  ```
  ## Runtime 
-Typical install time should not exceed a few minutes. Runtime should not exceed a few minutes when using only testdatasets to reproduce the plots in the paper.
+Typical install time should not exceed a few minutes. Runtime should not also not exceed a few minutes when using only test datasets to reproduce the plots in the paper.
 
 To train and create datasets from scratch is typically dependent on your hardware configuration. We used the set of clusters from the University of Innsbruck (UIBK) (https://www.uibk.ac.at/th-physik/howto/hpc/regulus.html) for (i) producing the datasets and (ii) training the ML models. For each run, we typically reserve 40GB of RAM. The specific CPU from the clusters depends on their availability. Although we did not test the computational cost systematically, we also ran the codes on two personal computers A and B which can
 represent low and high-end performing cases with the following hardware:
@@ -51,7 +51,7 @@ AMD ATI Radeon Vega Series / Radeon Vega Mobile Series, (GPU 2): NVIDIA GeForce 
 ```
 For instance, training the model we show the loss curve of in Supplementary Fig. under the same conditions takes around 2, 6, and 9 hours on the cluster, computers A and B with the adoption of the EarlyStoppping module from [keras-tensorflow](https://github.com/keras-team/keras) with a patience parameter of ~50.
 
-- Time for creating datasets: The typical computational bottleneck we found lies in generating the datasets since the continuum model diagonalization for moir ́e systems can be computationally demanding. Producing 1000 samples with both $\mathcal{D}_{r_{0}}\left(\omega\right)$ and $\mathcal{D}_{\omega_{0}}\left(r\right)$ channels can take around 12 hours in a setup similar to computer B. Consequently, creating any dataset with 12000 samples from the main sections could take up to one week. In a parallelized environment such as the set of clusters from UIBK, we could generate these datasets reliably in around 13 hours.
+- Time for creating datasets: The typical computational bottleneck we found lies in generating the datasets since the continuum model diagonalization for moir ́e systems can be computationally demanding. Producing 1000 samples with both $\mathcal{D}_{\mathbf{r}_{0}}\left(\omega\right)$ to $\mathcal{D}_{\omega_{0}}\left(\mathbf{r}\right)$.  $\mathcal{D}_{r_{0}}\left(\omega\right)$ and $\mathcal{D}_{\omega_{0}}\left(r\right)$ channels can take around 12 hours in a setup similar to computer B. Consequently, creating any dataset with 12000 samples from the main sections could take up to one week. In a parallelized environment such as the set of clusters from UIBK, we could generate these datasets reliably in around 13 hours.
 
 ## Short Instructions
 
