@@ -51,18 +51,21 @@ AMD ATI Radeon Vega Series / Radeon Vega Mobile Series, (GPU 2): NVIDIA GeForce 
 ```
 For instance, training the model we show the loss curve of in Supplementary Fig. under the same conditions takes around 2, 6, and 9 hours on the cluster, computers A and B with the adoption of the EarlyStoppping module from [keras-tensorflow](https://github.com/keras-team/keras) with a patience parameter of ~50.
 
-- Time for creating datasets: The typical computational bottleneck we found lies in generating the datasets since the continuum model diagonalization for moir ́e systems can be computationally demanding. Producing 1000 samples with both $\mathcal{D}_{r}(\omega)$ and $\mathcal{D}_{\omega}(r)$ $\mathcal{D}(\omega)$ channels can take around 12 hours in a setup similar to computer B. Consequently, creating any dataset with 12000 samples from the main sections could take up to one week. In a parallelized environment such as the set of clusters from UIBK, we could generate these datasets reliably in around 13 hours.
+- Time for creating datasets: The typical computational bottleneck we found lies in generating the datasets since the continuum model diagonalization for moir ́e systems can be computationally demanding. Producing 1000 samples with both $\mathcal{D}_{r}(\omega)$ and $\mathcal{D}_{\omega}(r)$ $\mathcal{D}_{1}(\omega)$ channels can take around 12 hours in a setup similar to computer B. Consequently, creating any dataset with 12000 samples from the main sections could take up to one week. In a parallelized environment such as the set of clusters from UIBK, we could generate these datasets reliably in around 13 hours.
 
 ## Short Instructions
 
 ### Continuum model for tDBG
+
 1. TDBG.py is a variation of [pytwist](https://github.com/sturk111/pytwist) that contains the graphene and moiré nematic couplings. For further documentation we refer 
 to the original repository - that goes beyond tDBG by including other moiré heterostructures.
 
 ### Toy model for TBG
 
 2. Files for the investigations in Appendix D can be found in the folder `app_d` and some auxiliary *Mathematica* notebooks in `minimalmodel/matnb`.
-#### Information about the experimental $D_{\text{exp}}$ and theoretical $D_{\text{th}}$ datasets
+
+#### Eperimental $D_{\text{exp}}$ and theoretical $D_{\text{th}}$ datasets
+
 3. The raw data for the experimental dataset $D_{\text{exp}}$ can be found in the folder `expdata`. To see how you can access and preprocess it, take a look 
 at `expdata_preprocessing.py`.
 4. All test datasets (npz files) and corresponding trained model files (h5) to reproduce the plots in the paper can be found in the Zenodo link.
