@@ -20,7 +20,7 @@ Authors: Simon Eli Turkel ([@sturk111](https://www.github.com/sturk111)), Abhay 
 
 ## Software requirements
 ### OS Requirements
-The package has been tested on the following systems. 
+The package has been tested on the following systems with Python >= 3.9: 
 
 + Linux: CentOS 6.8, Fedora 38 and Arch Linux
 
