@@ -75,6 +75,20 @@ For instance, training the model we show the loss curve of in Supplementary Fig.
 
 - Time for creating datasets: The typical computational bottleneck we found lies in generating the datasets since the continuum model diagonalization for moir systems can be computationally demanding. Producing 1000 samples with both $\mathcal{D}(\omega)$ and $\mathcal{D}(\bf{r})$ channels can take around 12 hours in a setup similar to computer B. Consequently, creating any dataset with 12000 samples from the main sections could take up to one week. In a parallelized environment such as the set of clusters from UIBK, we could generate these datasets reliably in around 13 hours.
 
+## Citation 
+
+If you use this code in your work, you can cite the associated paper with 
+
+```
+@misc{sobral2023machine,
+      title={Machine Learning Microscopic Form of Nematic Order in twisted double-bilayer graphene}, 
+      author={João Augusto Sobral and Stefan Obernauer and Simon Turkel and Abhay N. Pasupathy and Mathias S. Scheurer},
+      year={2023},
+      eprint={2302.12274},
+      archivePrefix={arXiv},
+      primaryClass={cond-mat.str-el}
+}
+```
 ## License
 
 Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
