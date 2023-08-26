@@ -80,13 +80,17 @@ For instance, training the model we show the loss curve of in Supplementary Fig.
 If you use this code in your work, you can cite the associated paper with 
 
 ```
-@misc{sobral2023machine,
-      title={Machine Learning Microscopic Form of Nematic Order in twisted double-bilayer graphene}, 
-      author={João Augusto Sobral and Stefan Obernauer and Simon Turkel and Abhay N. Pasupathy and Mathias S. Scheurer},
-      year={2023},
-      eprint={2302.12274},
-      archivePrefix={arXiv},
-      primaryClass={cond-mat.str-el}
+@article{Sobral2023,
+  doi = {10.1038/s41467-023-40684-1},
+  url = {https://doi.org/10.1038/s41467-023-40684-1},
+  year = {2023},
+  month = aug,
+  publisher = {Springer Science and Business Media {LLC}},
+  volume = {14},
+  number = {1},
+  author = {Jo{\~{a}}o Augusto Sobral and Stefan Obernauer and Simon Turkel and Abhay N. Pasupathy and Mathias S. Scheurer},
+  title = {Machine learning the microscopic form of nematic order in twisted double-bilayer graphene},
+  journal = {Nature Communications}
 }
 ```
 ## License
