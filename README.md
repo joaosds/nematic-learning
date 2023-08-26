@@ -77,7 +77,7 @@ For instance, training the model we show the loss curve of in Supplementary Fig.
 
 ## Citation 
 
-If you use this code in your work, you can cite the associated paper with 
+If you use this code in your work, you can also cite the associated paper with 
 
 ```
 @article{Sobral2023,
