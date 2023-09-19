@@ -12,6 +12,8 @@ Zenodo Link: [https://zenodo.org/record/7698738](https://zenodo.org/record/76987
 
 Authors: Simon Eli Turkel ([@sturk111](https://www.github.com/sturk111)), Abhay Pasuphaty (Columbia University), Stefan Obernauer ([@stefob](https://www.github.com/stefob)), João Augusto Sobral and Mathias S. Scheurer (University of Innsbruck).
 
+If you have any questions please reach out by joao.sobral@itp3.uni-stuttgart.de.
+
 ---
 
 - [Install from Github](#install-from-github)
