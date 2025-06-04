@@ -10,7 +10,7 @@ arxiv: [arxiv.org/abs/2302.12274](arxiv.org/abs/2302.12274).
 
 Zenodo Link: [https://zenodo.org/record/7698738](https://zenodo.org/record/7698738).
 
-Authors: Simon Eli Turkel ([@sturk111](https://www.github.com/sturk111)), Abhay Pasuphaty (Columbia University), Stefan Obernauer ([@stefob](https://www.github.com/stefob)), João Augusto Sobral and Mathias S. Scheurer (University of Innsbruck).
+Authors: João Augusto Sobral, Simon Eli Turkel ([@sturk111](https://www.github.com/sturk111)), Stefan Obernauer ([@stefob](https://www.github.com/stefob)), Abhay Pasuphaty (Columbia University) and Mathias S. Scheurer (University of Innsbruck).
 
 If you have any questions please reach out by joao.sobral@itp3.uni-stuttgart.de.
 
